@@ -101,7 +101,35 @@
               <div class="flex-1 flex flex-col justify-center">
                 @if($entry['program']->status === 'telah_terkonfirmasi' && !empty($entry['program']->ipfs_hash))
                   @php
-                    $hashes = is_array($entry['program']->ipfs_hash) ? $entry['program']->ipfs_hash : json_decode($entry['program']->ipfs_hash, true) ?? [];
+                    // EKSTRAKTOR HASH SAPU JAGAT (Otomatis pecah data yang "menyatu")
+                    $rawHash = $entry['program']->ipfs_hash;
+                    $hashes = [];
+                    
+                    if (is_array($rawHash)) {
+                        $hashes = $rawHash;
+                    } else {
+                        $decoded = @json_decode($rawHash, true);
+                        if (is_array($decoded)) {
+                            $hashes = $decoded;
+                        } else {
+                            // Bersihkan karakter aneh
+                            $cleanString = str_replace(['[', ']', '"', "'", "\\"], '', $rawHash);
+                            
+                            // Jika ada koma, pecah dengan koma
+                            if (strpos($cleanString, ',') !== false) {
+                                $hashes = array_values(array_filter(array_map('trim', explode(',', $cleanString))));
+                            } else {
+                                // JIKA BENAR-BENAR MENYATU (misal: Qm123Qm456)
+                                // Cari pola panjang Hash IPFS standar (46 Karakter dimulai dari Qm)
+                                preg_match_all('/Qm[1-9A-HJ-NP-Za-km-z]{44}/', $cleanString, $matches);
+                                if (!empty($matches[0])) {
+                                    $hashes = $matches[0];
+                                } else {
+                                    $hashes = [trim($cleanString)]; // Fallback terakhir
+                                }
+                            }
+                        }
+                    }
                   @endphp
                   
                   @if(count($hashes) > 0)
@@ -183,8 +211,30 @@
     @php
       $prog = $entry['program'];
       $hashes = [];
-      if ($prog->status === 'telah_terkonfirmasi' && $prog->ipfs_hash) {
-          $hashes = is_array($prog->ipfs_hash) ? $prog->ipfs_hash : json_decode($prog->ipfs_hash, true) ?? [];
+      
+      if ($prog->status === 'telah_terkonfirmasi' && !empty($prog->ipfs_hash)) {
+          $rawHash = $prog->ipfs_hash;
+          if (is_array($rawHash)) {
+              $hashes = $rawHash;
+          } else {
+              $decoded = @json_decode($rawHash, true);
+              if (is_array($decoded)) {
+                  $hashes = $decoded;
+              } else {
+                  $cleanString = str_replace(['[', ']', '"', "'", "\\"], '', $rawHash);
+                  if (strpos($cleanString, ',') !== false) {
+                      $hashes = array_values(array_filter(array_map('trim', explode(',', $cleanString))));
+                  } else {
+                      // Regex untuk jaga-jaga kalau datanya nempel kayak perangko
+                      preg_match_all('/Qm[1-9A-HJ-NP-Za-km-z]{44}/', $cleanString, $matches);
+                      if (!empty($matches[0])) {
+                          $hashes = $matches[0];
+                      } else {
+                          $hashes = [trim($cleanString)];
+                      }
+                  }
+              }
+          }
       }
     @endphp
     @if(count($hashes) > 0)
@@ -211,7 +261,7 @@
 
     function openMuzakkiGallery(programId) {
       const data = window._muzakkiPrograms?.[programId];
-      if (!data || !data.hashes) return;
+      if (!data || !data.hashes || data.hashes.length === 0) return;
 
       const modal = document.getElementById('galleryModal');
       const content = document.getElementById('galleryModalContent');
@@ -223,7 +273,7 @@
         html += `
           <div class="bg-white border-2 border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
             <a href="${url}" target="_blank" class="block relative w-full h-48 bg-slate-200 overflow-hidden">
-              <img src="${url}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+              <img src="${url}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/600x400/e2e8f0/475569?text=Gagal+Muat+Foto'">
               <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                 <span class="bg-white/95 text-violet-800 font-black text-[10px] uppercase px-4 py-2 rounded-full opacity-0 group-hover:opacity-100 transition-all transform scale-95 group-hover:scale-100 shadow-xl backdrop-blur-sm">Lihat Detail</span>
               </div>

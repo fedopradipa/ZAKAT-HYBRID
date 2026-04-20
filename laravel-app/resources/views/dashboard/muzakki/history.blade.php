@@ -5,9 +5,9 @@
 
     {{-- Header --}}
     <div>
-      <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tight">Riwayat & Pelacakan Dana</h1>
+      <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tight">Riwayat Setoran Zakat</h1>
       <p class="text-slate-500 text-sm font-semibold mt-1">
-        Lacak ke mana dana zakat Anda disalurkan secara transparan.
+        Pantau riwayat pembayaran zakat Anda. Untuk melihat rincian penyaluran, silakan gunakan menu Lacak Penyaluran.
       </p>
     </div>
 
@@ -27,72 +27,10 @@
       </div>
     </div>
 
-    {{-- FIFO Alokasi --}}
-    @if(!empty($fifoAlokasi))
-    <div class="bg-white rounded-2xl border-2 border-slate-300 shadow-md overflow-hidden">
-      <div class="bg-[#5c8a06] px-6 py-4">
-        <h3 class="text-white font-black uppercase text-xs tracking-widest">📊 Rincian Alokasi Dana Anda</h3>
-      </div>
-      <div class="divide-y-2 divide-slate-100">
-        @foreach($fifoAlokasi as $entry)
-        <div class="p-6">
-          <div class="flex items-start justify-between mb-3">
-            <div>
-              <p class="text-sm font-black text-slate-900">{{ $entry['program']->judul }}</p>
-              <p class="text-[10px] text-slate-400 font-semibold mt-0.5 uppercase tracking-widest">
-                {{ $entry['program']->bidang }} · {{ $entry['program']->tanggal_pelaksanaan->format('d/m/Y') }}
-              </p>
-            </div>
-            <span class="bg-emerald-100 text-emerald-800 border-2 border-emerald-300 text-[10px] font-black px-3 py-1 rounded-full uppercase">
-              {{ number_format($entry['total_kontribusi'], 4) }} ETH
-            </span>
-          </div>
-
-          {{-- Progress bar kontribusi --}}
-          @php
-            $persen = $entry['program']->dana_dibutuhkan > 0
-              ? ($entry['total_kontribusi'] / $entry['program']->dana_dibutuhkan) * 100
-              : 0;
-          @endphp
-          <div class="mt-3">
-            <div class="flex justify-between text-[10px] font-bold text-slate-500 mb-1">
-              <span>Kontribusi Anda</span>
-              <span>{{ number_format($persen, 1) }}% dari total program</span>
-            </div>
-            <div class="w-full bg-slate-100 rounded-full h-2">
-              <div class="bg-emerald-500 h-2 rounded-full transition-all"
-                style="width: {{ min($persen, 100) }}%"></div>
-            </div>
-          </div>
-
-          {{-- Detail per transaksi --}}
-          @foreach($entry['allocations'] as $alloc)
-          <div class="mt-3 bg-slate-50 rounded-xl p-3 flex items-center justify-between border border-slate-200">
-            <div>
-              <p class="text-[10px] font-black text-slate-600 uppercase tracking-widest">Dari Setoran</p>
-              <p class="text-xs font-mono font-bold text-slate-800 mt-0.5">
-                {{ substr($alloc['transaction']->tx_hash, 0, 18) }}...
-              </p>
-              <p class="text-[10px] text-slate-400 mt-0.5">
-                {{ $alloc['transaction']->created_at->format('d/m/Y H:i') }} ·
-                {{ $alloc['transaction']->jenis_dana }}
-              </p>
-            </div>
-            <span class="font-mono font-black text-emerald-700 text-sm">
-              {{ number_format($alloc['amount'], 4) }} ETH
-            </span>
-          </div>
-          @endforeach
-        </div>
-        @endforeach
-      </div>
-    </div>
-    @endif
-
     {{-- Riwayat Setoran --}}
     <div class="bg-white rounded-2xl border-2 border-slate-300 shadow-md overflow-hidden">
       <div class="bg-slate-800 px-6 py-4">
-        <h3 class="text-white font-black uppercase text-xs tracking-widest">🧾 Riwayat Setoran</h3>
+        <h3 class="text-white font-black uppercase text-xs tracking-widest">🧾 Riwayat Transaksi</h3>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">

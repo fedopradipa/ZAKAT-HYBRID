@@ -47,8 +47,16 @@
           <div class="p-2">
             {{-- Arahkan ke dashboard sesuai role --}}
             <a href="{{ route(Auth::user()->role . '.dashboard') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-600 font-semibold text-xs transition-colors">
-              <span>📜</span> Dashboard
+              <span>📜</span> {{ Auth::user()->role === 'muzakki' ? 'Riwayat Zakat' : 'Dashboard' }}
             </a>
+
+            {{-- MENU BARU KHUSUS MUZAKKI: Lacak Penyaluran --}}
+            @if(Auth::user()->role === 'muzakki')
+            <a href="{{ route('muzakki.tracking') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-emerald-50 text-emerald-600 font-semibold text-xs transition-colors">
+              <span>🔍</span> Lacak Penyaluran
+            </a>
+            @endif
+
             <hr class="my-1 border-slate-100">
             <form action="{{ route('logout') }}" method="POST">
               @csrf
