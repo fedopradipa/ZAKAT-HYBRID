@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ZakatController;
 use App\Http\Controllers\Admin\KeuanganController;
 use App\Http\Controllers\Admin\PenyaluranController;
+use App\Http\Controllers\Admin\PemerintahController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +76,6 @@ Route::middleware(['auth'])->group(function () {
      * ROLE: PEMERINTAH
      */
     Route::middleware(['role:pemerintah'])->prefix('pemerintah')->name('pemerintah.')->group(function () {
-        Route::get('/dashboard', function () { return "Dashboard Pemerintah"; })->name('dashboard');
+        Route::get('/dashboard', [PemerintahController::class, 'index'])->name('dashboard');
     });
 });
