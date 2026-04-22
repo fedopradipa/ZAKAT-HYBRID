@@ -34,16 +34,31 @@ class PemerintahController extends Controller
 
         // ── CARDS ──────────────────────────────────────────────────────
         // Ambil total per jenis_dana untuk tahun yang dipilih
-        $totals = Transaction::whereYear('created_at', $tahun)
+        $totalsRaw = Transaction::whereYear('created_at', $tahun)
             ->select('jenis_dana', DB::raw('SUM(nominal) as total'))
             ->groupBy('jenis_dana')
             ->pluck('total', 'jenis_dana');
 
-        // Sesuaikan key dengan nilai jenis_dana di DB kamu
-        $totalZakat         = $totals['zakat']          ?? 0;
-        $totalInfakTerikat  = $totals['infak_terikat']  ?? 0;
-        $totalInfakBebas    = $totals['infak_bebas']    ?? 0;
-        $totalHakAmil       = $totals['hak_amil']       ?? 0;
+        $totalZakat         = 0;
+        $totalInfakTerikat  = 0;
+        $totalInfakBebas    = 0;
+        $totalHakAmil       = 0;
+
+        // Petakan string dinamis dari DB ke 4 Kategori Card
+        foreach ($totalsRaw as $jenis => $total) {
+            $jenisLower = strtolower($jenis);
+
+            if (str_contains($jenisLower, 'zakat')) {
+                $totalZakat += $total;
+            } elseif (str_contains($jenisLower, 'terikat')) {
+                $totalInfakTerikat += $total;
+            } elseif (str_contains($jenisLower, 'amil')) {
+                $totalHakAmil += $total;
+            } else {
+                // Infak Umum, DSKL, Fidyah, dll masuk ke Infak Bebas (Tidak Terikat)
+                $totalInfakBebas += $total;
+            }
+        }
 
         // ── DATA CHART BULANAN ─────────────────────────────────────────
         // Ambil total per bulan, dipisah per jenis_dana
@@ -60,16 +75,18 @@ class PemerintahController extends Controller
         $bulanLabel = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
         $dataZakatBulan      = array_fill(0, 12, 0);
         $dataInfakBulan      = array_fill(0, 12, 0);
-        $dataTotalBulan      = array_fill(0, 12, 0); // untuk bar chart ZIS DSKL
+        $dataTotalBulan      = array_fill(0, 12, 0);
 
         foreach ($chartRaw as $row) {
             $idx = $row->bulan - 1; // index 0-11
             $dataTotalBulan[$idx] += $row->total;
 
-            if ($row->jenis_dana === 'zakat') {
-                $dataZakatBulan[$idx] = $row->total;
+            $jenisLower = strtolower($row->jenis_dana);
+
+            if (str_contains($jenisLower, 'zakat')) {
+                $dataZakatBulan[$idx] += $row->total;
             } else {
-                // semua selain zakat masuk kategori Infak di line chart
+                // Semua selain Zakat (Infak, DSKL, Fidyah) masuk ke line chart Infak
                 $dataInfakBulan[$idx] += $row->total;
             }
         }
