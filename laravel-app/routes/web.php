@@ -72,10 +72,18 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/program/{id}/fifo', [PenyaluranController::class, 'fifoProgram'])->name('fifo.program');
     });
 
-    /**
+      /**
      * ROLE: PEMERINTAH
      */
     Route::middleware(['role:pemerintah'])->prefix('pemerintah')->name('pemerintah.')->group(function () {
-        Route::get('/dashboard', [PemerintahController::class, 'index'])->name('dashboard');
+        // Rute default /dashboard diarahkan langsung ke halaman Pengumpulan ZIS
+        Route::get('/dashboard', [PemerintahController::class, 'pengumpulanZisDskl'])->name('dashboard');
+        
+        // Rute spesifik untuk sidebar
+        Route::get('/pengumpulan-zis-dskl', [PemerintahController::class, 'pengumpulanZisDskl'])->name('pengumpulan_zis_dskl');
+        
+        // Placeholder rute untuk Penyaluran & Laporan (Arahkan ke fungsi yang sama dulu, ganti controllernya nanti jika sudah dibuat)
+        Route::get('/penyaluran-zis-dskl', [PemerintahController::class, 'pengumpulanZisDskl'])->name('penyaluran_zis_dskl'); 
+        Route::get('/laporan-baznas', [PemerintahController::class, 'pengumpulanZisDskl'])->name('laporan_baznas'); 
     });
 });

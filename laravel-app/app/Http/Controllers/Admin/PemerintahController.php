@@ -7,37 +7,102 @@ use App\Models\Transaction;
 use App\Models\Distribution;
 use App\Models\Mustahik;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PemerintahController extends Controller
 {
     public function index()
     {
-        // 1. Hitung Total Pengumpulan Zakat
         $totalPengumpulan = Transaction::sum('nominal');
+        $totalDisalurkan  = Distribution::where('status', 'telah_terkonfirmasi')->sum('dana_dibutuhkan');
+        $efektivitas      = $totalPengumpulan > 0 ? ($totalDisalurkan / $totalPengumpulan) * 100 : 0;
+        $penerimaManfaat  = Mustahik::count();
+        $logAudit         = Distribution::where('status', 'telah_terkonfirmasi')
+                                ->orderBy('updated_at', 'desc')->take(5)->get();
 
-        // 2. Hitung Total yang sudah disalurkan (Selesai/Telah Terkonfirmasi)
-        $totalDisalurkan = Distribution::where('status', 'telah_terkonfirmasi')->sum('dana_dibutuhkan');
+        return view('dashboard.pemerintah.index', compact(
+            'totalPengumpulan', 'efektivitas', 'penerimaManfaat', 'logAudit'
+        ));
+    }
 
-        // 3. Hitung Efektivitas Penyaluran
-        $efektivitas = $totalPengumpulan > 0 
-            ? ($totalDisalurkan / $totalPengumpulan) * 100 
-            : 0;
+    /**
+     * Halaman Pengumpulan ZIS-DSKL
+     */
+    public function pengumpulanZisDskl(Request $request)
+    {
+        $tahun = $request->input('tahun', now()->year);
 
-        // 4. Hitung Jumlah Penerima Manfaat
-        $penerimaManfaat = Mustahik::count();
+        // ── CARDS ──────────────────────────────────────────────────────
+        // Ambil total per jenis_dana untuk tahun yang dipilih
+        $totals = Transaction::whereYear('created_at', $tahun)
+            ->select('jenis_dana', DB::raw('SUM(nominal) as total'))
+            ->groupBy('jenis_dana')
+            ->pluck('total', 'jenis_dana');
 
-        // 5. Ambil Log Program yang sudah selesai untuk diaudit
-        $logAudit = Distribution::where('status', 'telah_terkonfirmasi')
-            ->orderBy('updated_at', 'desc')
-            ->take(5) // Ambil 5 terbaru
+        // Sesuaikan key dengan nilai jenis_dana di DB kamu
+        $totalZakat         = $totals['zakat']          ?? 0;
+        $totalInfakTerikat  = $totals['infak_terikat']  ?? 0;
+        $totalInfakBebas    = $totals['infak_bebas']    ?? 0;
+        $totalHakAmil       = $totals['hak_amil']       ?? 0;
+
+        // ── DATA CHART BULANAN ─────────────────────────────────────────
+        // Ambil total per bulan, dipisah per jenis_dana
+        $chartRaw = Transaction::whereYear('created_at', $tahun)
+            ->select(
+                DB::raw('MONTH(created_at) as bulan'),
+                'jenis_dana',
+                DB::raw('SUM(nominal) as total')
+            )
+            ->groupBy('bulan', 'jenis_dana')
             ->get();
 
-        // Kirim data ke tampilan Dasbor Pemerintah
-        return view('dashboard.pemerintah.index', compact(
-            'totalPengumpulan',
-            'efektivitas',
-            'penerimaManfaat',
-            'logAudit'
+        // Inisialisasi array 12 bulan dengan 0
+        $bulanLabel = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+        $dataZakatBulan      = array_fill(0, 12, 0);
+        $dataInfakBulan      = array_fill(0, 12, 0);
+        $dataTotalBulan      = array_fill(0, 12, 0); // untuk bar chart ZIS DSKL
+
+        foreach ($chartRaw as $row) {
+            $idx = $row->bulan - 1; // index 0-11
+            $dataTotalBulan[$idx] += $row->total;
+
+            if ($row->jenis_dana === 'zakat') {
+                $dataZakatBulan[$idx] = $row->total;
+            } else {
+                // semua selain zakat masuk kategori Infak di line chart
+                $dataInfakBulan[$idx] += $row->total;
+            }
+        }
+
+        // ── DONUT CHART ────────────────────────────────────────────────
+        $totalKeseluruhan   = $totalZakat + $totalInfakTerikat + $totalInfakBebas + $totalHakAmil;
+        $donutData = [
+            round($totalZakat,        2),
+            round($totalInfakTerikat, 2),
+            round($totalInfakBebas,   2),
+            round($totalHakAmil,      2),
+        ];
+
+        // ── TABEL ──────────────────────────────────────────────────────
+        $dataMuzakki = Transaction::with('user')
+            ->whereYear('created_at', $tahun)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->withQueryString(); // agar filter tahun tetap saat ganti halaman
+
+        return view('dashboard.pemerintah.pengumpulanZIS.index', compact(
+            'tahun',
+            'totalZakat',
+            'totalInfakTerikat',
+            'totalInfakBebas',
+            'totalHakAmil',
+            'totalKeseluruhan',
+            'bulanLabel',
+            'dataTotalBulan',
+            'dataZakatBulan',
+            'dataInfakBulan',
+            'donutData',
+            'dataMuzakki'
         ));
     }
 }

@@ -1,0 +1,23 @@
+C:\laragon\www\ZAKAT-HYBRID\laravel-app
+├── app
+├── artisan
+├── bootstrap
+├── composer.json
+├── composer.lock
+├── config
+├── database
+├── node_modules
+├── package-lock.json
+├── package.json
+├── phpunit.xml
+├── public
+├── README.md
+├── resources
+├── routes
+├── storage
+├── tests
+├── vendor
+└── vite.config.js
+
+directory: 11 file: 8
+

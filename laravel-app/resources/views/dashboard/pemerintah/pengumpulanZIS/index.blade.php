@@ -1,230 +1,350 @@
-{{-- resources/views/dashboard/pemerintah/index.blade.php --}}
+{{-- resources/views/dashboard/pemerintah/pengumpulanZIS/index.blade.php --}}
 
-<x-layouts.admin title="Monitor Pengawasan Zakat">
-  <div class="space-y-8 animate-fade-in-up">
-    
-    {{-- Header Pengawasan --}}
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <div>
-        <div class="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-3">
-          <span class="relative flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-          </span>
-          Mode Auditor
-        </div>
-        <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tight">Panel Pengawasan Nasional</h1>
-        <p class="text-slate-500 text-sm font-semibold mt-1">
-          Pemantauan real-time arus kas zakat dan kepatuhan penyaluran berbasis Blockchain.
-        </p>
-      </div>
-      <div class="flex gap-2">
-        <button onclick="window.print()" class="bg-white text-slate-700 border-2 border-slate-200 font-black py-2.5 px-5 rounded-xl text-xs uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95 flex items-center gap-2 shadow-sm">
-          <span>🖨️</span> Cetak Laporan
-        </button>
-      </div>
-    </div>
-
-    {{-- Makro Statistik --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-white rounded-2xl border-2 border-slate-200 p-5 shadow-sm relative overflow-hidden">
-        <div class="absolute -right-4 -top-4 text-6xl opacity-5">💰</div>
-        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 relative z-10">Total Pengumpulan</p>
-        <p class="text-2xl font-black text-slate-900 font-mono relative z-10">1,240.50 <span class="text-xs text-slate-400">ETH</span></p>
-        <p class="text-[10px] text-emerald-600 font-bold mt-2 relative z-10 flex items-center gap-1">
-          <span>↑</span> 12% dari kuartal lalu
-        </p>
-      </div>
-      
-      <div class="bg-white rounded-2xl border-2 border-slate-200 p-5 shadow-sm relative overflow-hidden">
-        <div class="absolute -right-4 -top-4 text-6xl opacity-5">📈</div>
-        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 relative z-10">Efektivitas Penyaluran</p>
-        <p class="text-2xl font-black text-emerald-600 font-mono relative z-10">94.2%</p>
-        <p class="text-[10px] text-slate-400 font-bold mt-2 relative z-10">Target Nasional: Min. 90%</p>
-      </div>
-      
-      <div class="bg-white rounded-2xl border-2 border-slate-200 p-5 shadow-sm relative overflow-hidden">
-        <div class="absolute -right-4 -top-4 text-6xl opacity-5">👥</div>
-        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 relative z-10">Penerima Manfaat</p>
-        <p class="text-2xl font-black text-blue-600 font-mono relative z-10">8,420 <span class="text-xs text-slate-400 font-sans">Jiwa</span></p>
-        <p class="text-[10px] text-slate-400 font-bold mt-2 relative z-10">Telah diverifikasi</p>
-      </div>
-      
-      <div class="bg-white rounded-2xl border-2 border-amber-200 p-5 shadow-sm relative overflow-hidden">
-        <div class="absolute -right-4 -top-4 text-6xl opacity-10">⚖️</div>
-        <p class="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-1 relative z-10">Rasio Hak Amil</p>
-        <p class="text-2xl font-black text-amber-600 font-mono relative z-10">11.5%</p>
-        <p class="text-[10px] text-amber-600/80 font-bold mt-2 relative z-10">Batas Maksimal Regulasi: 12.5%</p>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      
-      {{-- Kolom Kiri: Sebaran Program (Memakan 2 Kolom) --}}
-      <div class="lg:col-span-2 space-y-8">
-        
-        {{-- Card: Sebaran Penyaluran --}}
-        <div class="bg-white rounded-2xl border-2 border-slate-300 shadow-md overflow-hidden">
-          <div class="bg-slate-800 px-6 py-4 flex justify-between items-center">
-              <h3 class="text-white font-black uppercase text-xs tracking-widest">📈 Sebaran Penyaluran per Asnaf/Bidang</h3>
-          </div>
-          <div class="p-6">
-              <div class="space-y-6">
-                  @php
-                      // Data Dummy Agregat untuk Pemerintah
-                      $sebaran = [
-                          ['label' => 'Pendidikan (Beasiswa & Fasilitas)', 'color' => 'bg-blue-500', 'percent' => 40, 'amount' => '496.20'],
-                          ['label' => 'Kesehatan & Medis', 'color' => 'bg-emerald-500', 'percent' => 25, 'amount' => '310.12'],
-                          ['label' => 'Kemanusiaan & Bencana', 'color' => 'bg-red-500', 'percent' => 20, 'amount' => '248.10'],
-                          ['label' => 'Ekonomi Mikro & Dakwah', 'color' => 'bg-amber-500', 'percent' => 15, 'amount' => '186.08'],
-                      ];
-                  @endphp
-
-                  @foreach($sebaran as $item)
-                  <div>
-                      <div class="flex justify-between text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">
-                          <span>{{ $item['label'] }}</span>
-                          <div class="text-right">
-                              <span class="text-slate-900 font-black font-mono">{{ $item['amount'] }} ETH</span>
-                              <span class="text-[10px] text-slate-400 ml-1">({{ $item['percent'] }}%)</span>
-                          </div>
-                      </div>
-                      <div class="w-full bg-slate-100 rounded-full h-3">
-                          <div class="{{ $item['color'] }} h-3 rounded-full shadow-inner" style="width: {{ $item['percent'] }}%"></div>
-                      </div>
-                  </div>
-                  @endforeach
-              </div>
-          </div>
-        </div>
-
-        {{-- Card: Log Audit Transparansi --}}
-        <div class="bg-white rounded-2xl border-2 border-slate-300 shadow-md overflow-hidden">
-          <div class="bg-slate-50 px-6 py-4 border-b-2 border-slate-200">
-            <h3 class="text-slate-800 font-black uppercase text-xs tracking-widest">📋 Log Audit Program Terselesaikan</h3>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead class="bg-slate-100/50 text-[10px] font-black text-slate-500 uppercase tracking-widest border-b-2 border-slate-200">
-                <tr>
-                  <th class="px-5 py-3">Program</th>
-                  <th class="px-5 py-3">Anggaran</th>
-                  <th class="px-5 py-3 text-center">Status IPFS</th>
-                  <th class="px-5 py-3 text-center">Smart Contract</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100">
-                <tr class="hover:bg-slate-50 transition-colors">
-                  <td class="px-5 py-4">
-                    <p class="text-xs font-black text-slate-800">Bantuan Modal UMKM Tasikmalaya</p>
-                    <p class="text-[10px] text-slate-400 font-bold mt-0.5">Selesai: 18 April 2026</p>
-                  </td>
-                  <td class="px-5 py-4 text-xs font-mono font-black text-slate-700">12.5000 ETH</td>
-                  <td class="px-5 py-4 text-center">
-                    <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 border border-emerald-300 text-[9px] font-black px-2 py-1 rounded-full uppercase">
-                      ✅ Terenkripsi
-                    </span>
-                  </td>
-                  <td class="px-5 py-4 text-center">
-                    <a href="#" class="text-blue-600 hover:underline font-mono text-[10px] font-bold">0xabc...123</a>
-                  </td>
-                </tr>
-                <tr class="hover:bg-slate-50 transition-colors">
-                  <td class="px-5 py-4">
-                    <p class="text-xs font-black text-slate-800">Beasiswa Santri Berprestasi</p>
-                    <p class="text-[10px] text-slate-400 font-bold mt-0.5">Selesai: 15 April 2026</p>
-                  </td>
-                  <td class="px-5 py-4 text-xs font-mono font-black text-slate-700">8.2000 ETH</td>
-                  <td class="px-5 py-4 text-center">
-                    <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 border border-emerald-300 text-[9px] font-black px-2 py-1 rounded-full uppercase">
-                      ✅ Terenkripsi
-                    </span>
-                  </td>
-                  <td class="px-5 py-4 text-center">
-                    <a href="#" class="text-blue-600 hover:underline font-mono text-[10px] font-bold">0xdef...456</a>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="px-6 py-3 bg-slate-50 border-t border-slate-100 text-center">
-            <a href="#" class="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline">Lihat Seluruh Log Audit &rarr;</a>
-          </div>
-        </div>
-
-      </div>
-
-      {{-- Kolom Kanan: Status Kepatuhan (Memakan 1 Kolom) --}}
-      <div class="space-y-6">
-        
-        {{-- Integritas Sistem --}}
-        <div class="bg-violet-900 rounded-2xl border-2 border-violet-700 p-6 shadow-md text-white relative overflow-hidden">
-          <div class="absolute -right-8 -top-8 text-8xl opacity-10">🧊</div>
-          <h3 class="font-black uppercase text-xs tracking-widest mb-4 flex items-center gap-2 relative z-10">
-            <span>🛡️</span> Indeks Integritas Sistem
-          </h3>
-          
-          <div class="space-y-4 relative z-10">
-            <div class="bg-violet-800/50 p-4 rounded-xl border border-violet-600/50">
-              <div class="flex justify-between items-center mb-1">
-                <span class="text-[10px] text-violet-200 font-bold uppercase tracking-wider">Pencatatan Blockchain</span>
-                <span class="text-xs font-black text-emerald-400">100%</span>
-              </div>
-              <p class="text-[9px] text-violet-300">Seluruh transaksi sukses tercatat di jaringan Ethereum (Sepolia).</p>
-            </div>
-            
-            <div class="bg-violet-800/50 p-4 rounded-xl border border-violet-600/50">
-              <div class="flex justify-between items-center mb-1">
-                <span class="text-[10px] text-violet-200 font-bold uppercase tracking-wider">Kepatuhan IPFS (Bukti)</span>
-                <span class="text-xs font-black text-amber-400">98.5%</span>
-              </div>
-              <p class="text-[9px] text-violet-300">Terdapat 1.5% program dalam masa tunggu unggah dokumentasi.</p>
-            </div>
-
-            <div class="bg-violet-800/50 p-4 rounded-xl border border-violet-600/50">
-              <div class="flex justify-between items-center mb-1">
-                <span class="text-[10px] text-violet-200 font-bold uppercase tracking-wider">Status Kontrak Pintar</span>
-                <span class="text-xs font-black text-emerald-400">Aman</span>
-              </div>
-              <p class="text-[9px] text-violet-300">Tidak terdeteksi anomali penarikan dana di luar algoritma FIFO.</p>
-            </div>
-          </div>
-        </div>
-
-        {{-- Ringkasan Audit Cepat --}}
-        <div class="bg-white rounded-2xl border-2 border-slate-200 p-6 shadow-sm">
-          <h3 class="text-slate-800 font-black uppercase text-xs tracking-widest mb-4">Aksi Rekomendasi</h3>
-          <ul class="space-y-3">
-            <li class="flex gap-3 text-sm">
-              <span class="text-emerald-500">✓</span>
-              <span class="text-slate-600 font-medium text-xs">Tata kelola bulan ini sesuai standar operasional BAZNAS.</span>
-            </li>
-            <li class="flex gap-3 text-sm">
-              <span class="text-amber-500">!</span>
-              <span class="text-slate-600 font-medium text-xs">Tinjau 2 program penyaluran yang telat mengunggah bukti IPFS lebih dari 7 hari.</span>
-            </li>
-            <li class="flex gap-3 text-sm">
-              <span class="text-blue-500">ℹ</span>
-              <span class="text-slate-600 font-medium text-xs">Pencetakan laporan audit kuartal pertama sudah dapat dilakukan.</span>
-            </li>
-          </ul>
-        </div>
-
-      </div>
-
-    </div>
-  </div>
+<x-layouts.admin title="Pengumpulan ZIS DSKL">
 
   @push('styles')
   <style>
-      .animate-fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(15px); }
-      @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
-      @media print {
-        body * { visibility: hidden; }
-        .animate-fade-in-up, .animate-fade-in-up * { visibility: visible; }
-        .animate-fade-in-up { position: absolute; left: 0; top: 0; width: 100%; animation: none; transform: none; opacity: 1;}
-        button { display: none !important; }
-      }
+    .animate-fade-in-up { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   </style>
   @endpush
+
+  <div class="space-y-6 animate-fade-in-up">
+
+    {{-- ── HEADER ───────────────────────────────────────────────────── --}}
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <h1 class="text-xl font-black text-slate-800 tracking-tight">PENGUMPULAN ZIS DSKL</h1>
+
+      {{-- Filter Tahun --}}
+      <form method="GET" action="{{ route('pemerintah.pengumpulan_zis_dskl') }}" class="flex items-center gap-2">
+        <label class="text-xs font-semibold text-slate-500">Pilih Tahun Pengumpulan</label>
+        <input
+          type="number"
+          name="tahun"
+          value="{{ $tahun }}"
+          min="2020"
+          max="{{ now()->year }}"
+          placeholder="Tahun"
+          class="border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 focus:outline-none focus:border-emerald-500 w-28"
+        />
+        <button type="submit"
+          class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2 rounded-lg text-sm transition-all active:scale-95">
+          Filter
+        </button>
+      </form>
+    </div>
+
+    {{-- ── SUB HEADER TAHUN ─────────────────────────────────────────── --}}
+    <p class="text-sm font-semibold text-slate-700">
+      Informasi Pengumpulan Pada Tahun {{ $tahun }}
+    </p>
+
+    {{-- ── 4 CARDS ──────────────────────────────────────────────────── --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+      {{-- Card: Zakat --}}
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-emerald-300 transition-colors">
+        <p class="text-xs text-slate-500 font-semibold mb-3">Zakat</p>
+        <p class="text-2xl font-black text-slate-800">
+          Rp {{ number_format($totalZakat, 2, ',', '.') }}
+        </p>
+      </div>
+
+      {{-- Card: Infak Terikat --}}
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-blue-300 transition-colors">
+        <p class="text-xs text-slate-500 font-semibold mb-3">Infak Terikat</p>
+        <p class="text-2xl font-black text-slate-800">
+          Rp {{ number_format($totalInfakTerikat, 2, ',', '.') }}
+        </p>
+      </div>
+
+      {{-- Card: Infak Tidak Terikat --}}
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-blue-300 transition-colors">
+        <p class="text-xs text-slate-500 font-semibold mb-3">Infak Tidak Terikat</p>
+        <p class="text-2xl font-black text-slate-800">
+          Rp {{ number_format($totalInfakBebas, 2, ',', '.') }}
+        </p>
+      </div>
+
+      {{-- Card: Hak Amil --}}
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-amber-300 transition-colors">
+        <p class="text-xs text-slate-500 font-semibold mb-3">Hak Amil</p>
+        <p class="text-2xl font-black text-slate-800">
+          Rp {{ number_format($totalHakAmil, 2, ',', '.') }}
+        </p>
+      </div>
+
+    </div>
+
+    {{-- ── ROW 1 CHARTS: Bar ZIS DSKL + Donut ─────────────────────── --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      {{-- Bar Chart: Pengumpulan Bulanan ZIS DSKL --}}
+      <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="font-black text-slate-800 text-base mb-1">Pengumpulan Bulanan ZIS DSKL</h3>
+        <div class="flex items-center gap-2 mb-4">
+          <span class="inline-block w-3 h-3 rounded-sm bg-emerald-500"></span>
+          <span class="text-xs text-slate-500 font-semibold">Pengumpulan</span>
+        </div>
+        <div class="relative h-64 w-full">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+
+      {{-- Donut Chart: Persentase Jenis Dana --}}
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col">
+        <h3 class="font-black text-slate-800 text-base mb-1 text-center">Persentase Jenis Dana</h3>
+        <div class="relative flex-1 flex justify-center items-center min-h-[220px]">
+          <canvas id="donutChart"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    {{-- ── ROW 2 CHARTS: Line Chart Zakat vs Infak ─────────────────── --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <h3 class="font-black text-slate-800 text-base mb-1">Pengumpulan Bulanan</h3>
+      <div class="flex items-center gap-4 mb-4">
+        <span class="flex items-center gap-1.5">
+          <span class="inline-block w-3 h-3 rounded-sm bg-orange-400"></span>
+          <span class="text-xs text-slate-500 font-semibold">Zakat</span>
+        </span>
+        <span class="flex items-center gap-1.5">
+          <span class="inline-block w-3 h-3 rounded-sm bg-blue-400"></span>
+          <span class="text-xs text-slate-500 font-semibold">Infak</span>
+        </span>
+      </div>
+      <div class="relative h-64 w-full">
+        <canvas id="lineChart"></canvas>
+      </div>
+    </div>
+
+    {{-- ── TABEL DETAIL SETORAN ─────────────────────────────────────── --}}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+
+      <div class="px-6 py-5 border-b border-slate-200 bg-slate-50/50">
+        <h2 class="text-base font-black text-slate-800">Detail Setoran Muzakki</h2>
+        <p class="text-xs text-slate-500 font-medium mt-0.5">Seluruh data divalidasi dan tercatat permanen di jaringan Blockchain.</p>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200">
+              <th class="px-6 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">#</th>
+              <th class="px-6 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Muzakki</th>
+              <th class="px-6 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Jenis Dana</th>
+              <th class="px-6 py-3 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Nominal (IDR)</th>
+              <th class="px-6 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Tanggal</th>
+              <th class="px-6 py-3 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @forelse($dataMuzakki as $tx)
+              <tr class="hover:bg-slate-50/50 transition-colors">
+                <td class="px-6 py-4 text-xs text-slate-400 font-mono">
+                  {{ $dataMuzakki->firstItem() + $loop->index }}
+                </td>
+                <td class="px-6 py-4">
+                  <p class="font-bold text-slate-800 text-xs">{{ $tx->user->name ?? 'Hamba Allah' }}</p>
+                  <p class="font-mono text-[10px] text-slate-400 mt-0.5">
+                    {{ substr($tx->user->wallet_address ?? 'Anonim', 0, 10) }}...
+                  </p>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
+                    {{ $tx->jenis_dana }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <div class="font-black text-emerald-600 text-sm">
+                    Rp {{ number_format($tx->nominal, 2, ',', '.') }}
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-slate-600 text-xs font-semibold">
+                  {{ $tx->created_at->format('d M Y, H:i') }}
+                </td>
+                <td class="px-6 py-4 text-center">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-black uppercase rounded-full tracking-widest">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Verified
+                  </span>
+                </td>
+              </tr>
+            @empty
+              <tr>
+                <td colspan="6" class="px-6 py-16 text-center">
+                  <div class="text-4xl mb-3 opacity-50">📁</div>
+                  <p class="text-slate-500 font-bold text-sm">Belum ada data pengumpulan untuk tahun {{ $tahun }}.</p>
+                </td>
+              </tr>
+            @endforelse
+          </tbody>
+        </table>
+      </div>
+
+      {{-- Pagination --}}
+      @if($dataMuzakki->hasPages())
+      <div class="px-6 py-4 border-t border-slate-200">
+        {{ $dataMuzakki->links() }}
+      </div>
+      @endif
+
+    </div>
+
+  </div>
+
+  {{-- ── SCRIPTS CHART.JS ─────────────────────────────────────────────── --}}
+  @push('scripts')
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+      Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+      Chart.defaults.color = '#64748b';
+
+      // ── Data dari PHP (real DB) ──────────────────────────────────
+      const labels      = @json($bulanLabel);
+      const totalBulan  = @json($dataTotalBulan);
+      const zakatBulan  = @json($dataZakatBulan);
+      const infakBulan  = @json($dataInfakBulan);
+      const donutData   = @json($donutData);
+
+      // ── 1. BAR CHART ─────────────────────────────────────────────
+      new Chart(document.getElementById('barChart'), {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Pengumpulan',
+            data: totalBulan,
+            backgroundColor: '#10b981',
+            hoverBackgroundColor: '#059669',
+            borderRadius: 4,
+            barPercentage: 0.55,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e293b',
+              padding: 10,
+              callbacks: {
+                label: ctx => ' Rp ' + Number(ctx.parsed.y).toLocaleString('id-ID', {minimumFractionDigits: 2})
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: { color: '#f1f5f9' },
+              ticks: {
+                font: { weight: 'bold', size: 10 },
+                callback: val => 'Rp ' + (val >= 1000000 ? (val/1000000).toFixed(1)+'jt' : val.toLocaleString('id-ID'))
+              }
+            },
+            x: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 10 } } }
+          }
+        }
+      });
+
+      // ── 2. LINE CHART ─────────────────────────────────────────────
+      new Chart(document.getElementById('lineChart'), {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Zakat',
+              data: zakatBulan,
+              borderColor: '#f97316',
+              backgroundColor: 'rgba(249,115,22,0.08)',
+              pointBackgroundColor: '#f97316',
+              pointRadius: 4,
+              tension: 0.3,
+              fill: false,
+            },
+            {
+              label: 'Infak',
+              data: infakBulan,
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59,130,246,0.08)',
+              pointBackgroundColor: '#3b82f6',
+              pointRadius: 4,
+              tension: 0.3,
+              fill: false,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1e293b',
+              padding: 10,
+              callbacks: {
+                label: ctx => ' ' + ctx.dataset.label + ': Rp ' + Number(ctx.parsed.y).toLocaleString('id-ID', {minimumFractionDigits: 2})
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: { color: '#f1f5f9' },
+              ticks: {
+                font: { weight: 'bold', size: 10 },
+                callback: val => 'Rp ' + (val >= 1000000 ? (val/1000000).toFixed(1)+'jt' : val.toLocaleString('id-ID'))
+              }
+            },
+            x: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 10 } } }
+          }
+        }
+      });
+
+      // ── 3. DONUT CHART ────────────────────────────────────────────
+      new Chart(document.getElementById('donutChart'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Zakat', 'Infak Terikat', 'Infak Tidak Terikat', 'Hak Amil'],
+          datasets: [{
+            data: donutData,
+            backgroundColor: ['#059669', '#3b82f6', '#f59e0b', '#64748b'],
+            borderWidth: 4,
+            borderColor: '#ffffff',
+            hoverOffset: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '68%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                padding: 16,
+                usePointStyle: true,
+                pointStyle: 'circle',
+                font: { weight: 'bold', size: 10 }
+              }
+            },
+            tooltip: {
+              backgroundColor: '#1e293b',
+              padding: 10,
+              callbacks: {
+                label: ctx => ' ' + ctx.label + ': Rp ' + Number(ctx.parsed).toLocaleString('id-ID', {minimumFractionDigits: 2})
+              }
+            }
+          }
+        }
+      });
+
+    });
+  </script>
+  @endpush
+
 </x-layouts.admin>
