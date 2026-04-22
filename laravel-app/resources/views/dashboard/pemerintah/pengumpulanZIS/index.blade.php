@@ -15,7 +15,6 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <h1 class="text-xl font-black text-slate-800 tracking-tight">PENGUMPULAN ZIS DSKL</h1>
 
-      {{-- Filter Tahun --}}
       <form method="GET" action="{{ route('pemerintah.pengumpulan_zis_dskl') }}" class="flex items-center gap-2">
         <label class="text-xs font-semibold text-slate-500">Pilih Tahun Pengumpulan</label>
         <input
@@ -35,42 +34,59 @@
     </div>
 
     {{-- ── SUB HEADER TAHUN ─────────────────────────────────────────── --}}
-    <p class="text-sm font-semibold text-slate-700">
-      Informasi Pengumpulan Pada Tahun {{ $tahun }}
-    </p>
+    <div class="flex justify-between items-end">
+        <p class="text-sm font-semibold text-slate-700">
+        Informasi Pengumpulan Pada Tahun {{ $tahun }}
+        </p>
+        <p class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-md border border-slate-200">
+            Kurs ETH: Rp {{ number_format($ethPriceIdr, 0, ',', '.') }}
+        </p>
+    </div>
 
     {{-- ── 4 CARDS ──────────────────────────────────────────────────── --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
       {{-- Card: Zakat --}}
       <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-emerald-300 transition-colors">
-        <p class="text-xs text-slate-500 font-semibold mb-3">Zakat</p>
+        <p class="text-xs text-slate-500 font-semibold mb-2">Zakat</p>
         <p class="text-2xl font-black text-slate-800">
-          Rp {{ number_format($totalZakat, 2, ',', '.') }}
+          Rp {{ number_format($totalZakat * $ethPriceIdr, 0, ',', '.') }}
+        </p>
+        <p class="text-xs font-bold text-emerald-600 mt-1">
+          ≈ {{ number_format($totalZakat, 4, ',', '.') }} ETH
         </p>
       </div>
 
       {{-- Card: Infak Terikat --}}
       <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-blue-300 transition-colors">
-        <p class="text-xs text-slate-500 font-semibold mb-3">Infak Terikat</p>
+        <p class="text-xs text-slate-500 font-semibold mb-2">Infak Terikat</p>
         <p class="text-2xl font-black text-slate-800">
-          Rp {{ number_format($totalInfakTerikat, 2, ',', '.') }}
+          Rp {{ number_format($totalInfakTerikat * $ethPriceIdr, 0, ',', '.') }}
+        </p>
+        <p class="text-xs font-bold text-blue-600 mt-1">
+          ≈ {{ number_format($totalInfakTerikat, 4, ',', '.') }} ETH
         </p>
       </div>
 
       {{-- Card: Infak Tidak Terikat --}}
       <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-blue-300 transition-colors">
-        <p class="text-xs text-slate-500 font-semibold mb-3">Infak Tidak Terikat</p>
+        <p class="text-xs text-slate-500 font-semibold mb-2">Infak Tidak Terikat / DSKL</p>
         <p class="text-2xl font-black text-slate-800">
-          Rp {{ number_format($totalInfakBebas, 2, ',', '.') }}
+          Rp {{ number_format($totalInfakBebas * $ethPriceIdr, 0, ',', '.') }}
+        </p>
+        <p class="text-xs font-bold text-blue-600 mt-1">
+          ≈ {{ number_format($totalInfakBebas, 4, ',', '.') }} ETH
         </p>
       </div>
 
       {{-- Card: Hak Amil --}}
       <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-amber-300 transition-colors">
-        <p class="text-xs text-slate-500 font-semibold mb-3">Hak Amil</p>
+        <p class="text-xs text-slate-500 font-semibold mb-2">Hak Amil</p>
         <p class="text-2xl font-black text-slate-800">
-          Rp {{ number_format($totalHakAmil, 2, ',', '.') }}
+          Rp {{ number_format($totalHakAmil * $ethPriceIdr, 0, ',', '.') }}
+        </p>
+        <p class="text-xs font-bold text-amber-600 mt-1">
+          ≈ {{ number_format($totalHakAmil, 4, ',', '.') }} ETH
         </p>
       </div>
 
@@ -84,7 +100,7 @@
         <h3 class="font-black text-slate-800 text-base mb-1">Pengumpulan Bulanan ZIS DSKL</h3>
         <div class="flex items-center gap-2 mb-4">
           <span class="inline-block w-3 h-3 rounded-sm bg-emerald-500"></span>
-          <span class="text-xs text-slate-500 font-semibold">Pengumpulan</span>
+          <span class="text-xs text-slate-500 font-semibold">Pengumpulan (IDR Estimasi)</span>
         </div>
         <div class="relative h-64 w-full">
           <canvas id="barChart"></canvas>
@@ -103,7 +119,7 @@
 
     {{-- ── ROW 2 CHARTS: Line Chart Zakat vs Infak ─────────────────── --}}
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-      <h3 class="font-black text-slate-800 text-base mb-1">Pengumpulan Bulanan</h3>
+      <h3 class="font-black text-slate-800 text-base mb-1">Tren Zakat vs Infak/DSKL</h3>
       <div class="flex items-center gap-4 mb-4">
         <span class="flex items-center gap-1.5">
           <span class="inline-block w-3 h-3 rounded-sm bg-orange-400"></span>
@@ -111,7 +127,7 @@
         </span>
         <span class="flex items-center gap-1.5">
           <span class="inline-block w-3 h-3 rounded-sm bg-blue-400"></span>
-          <span class="text-xs text-slate-500 font-semibold">Infak</span>
+          <span class="text-xs text-slate-500 font-semibold">Infak / Lainnya</span>
         </span>
       </div>
       <div class="relative h-64 w-full">
@@ -134,7 +150,7 @@
               <th class="px-6 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">#</th>
               <th class="px-6 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Muzakki</th>
               <th class="px-6 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Jenis Dana</th>
-              <th class="px-6 py-3 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Nominal (IDR)</th>
+              <th class="px-6 py-3 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Nominal</th>
               <th class="px-6 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Tanggal</th>
               <th class="px-6 py-3 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>
             </tr>
@@ -158,7 +174,10 @@
                 </td>
                 <td class="px-6 py-4 text-right">
                   <div class="font-black text-emerald-600 text-sm">
-                    Rp {{ number_format($tx->nominal, 2, ',', '.') }}
+                    Rp {{ number_format($tx->nominal * $ethPriceIdr, 0, ',', '.') }}
+                  </div>
+                  <div class="text-[10px] text-slate-500 font-bold mt-0.5">
+                    ≈ {{ number_format($tx->nominal, 4, ',', '.') }} ETH
                   </div>
                 </td>
                 <td class="px-6 py-4 text-slate-600 text-xs font-semibold">
@@ -202,12 +221,16 @@
       Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
       Chart.defaults.color = '#64748b';
 
-      // ── Data dari PHP (real DB) ──────────────────────────────────
       const labels      = @json($bulanLabel);
       const totalBulan  = @json($dataTotalBulan);
       const zakatBulan  = @json($dataZakatBulan);
       const infakBulan  = @json($dataInfakBulan);
       const donutData   = @json($donutData);
+      
+      const currentEthPrice = {{ $ethPriceIdr }};
+
+      const formatIdr = (val) => new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(val);
+      const formatEth = (val) => new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 4 }).format(val);
 
       // ── 1. BAR CHART ─────────────────────────────────────────────
       new Chart(document.getElementById('barChart'), {
@@ -216,7 +239,7 @@
           labels: labels,
           datasets: [{
             label: 'Pengumpulan',
-            data: totalBulan,
+            data: totalBulan.map(eth => eth * currentEthPrice), // Ubah sumbu Y ke Rupiah
             backgroundColor: '#10b981',
             hoverBackgroundColor: '#059669',
             borderRadius: 4,
@@ -232,7 +255,11 @@
               backgroundColor: '#1e293b',
               padding: 10,
               callbacks: {
-                label: ctx => ' Rp ' + Number(ctx.parsed.y).toLocaleString('id-ID', {minimumFractionDigits: 2})
+                label: ctx => {
+                    let idr = Number(ctx.parsed.y);
+                    let eth = idr / currentEthPrice;
+                    return ` Rp ${formatIdr(idr)} (≈ ${formatEth(eth)} ETH)`;
+                }
               }
             }
           },
@@ -242,7 +269,7 @@
               grid: { color: '#f1f5f9' },
               ticks: {
                 font: { weight: 'bold', size: 10 },
-                callback: val => 'Rp ' + (val >= 1000000 ? (val/1000000).toFixed(1)+'jt' : val.toLocaleString('id-ID'))
+                callback: val => 'Rp ' + (val >= 1000000 ? (val/1000000).toFixed(1)+'jt' : formatIdr(val))
               }
             },
             x: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 10 } } }
@@ -258,7 +285,7 @@
           datasets: [
             {
               label: 'Zakat',
-              data: zakatBulan,
+              data: zakatBulan.map(eth => eth * currentEthPrice),
               borderColor: '#f97316',
               backgroundColor: 'rgba(249,115,22,0.08)',
               pointBackgroundColor: '#f97316',
@@ -268,7 +295,7 @@
             },
             {
               label: 'Infak',
-              data: infakBulan,
+              data: infakBulan.map(eth => eth * currentEthPrice),
               borderColor: '#3b82f6',
               backgroundColor: 'rgba(59,130,246,0.08)',
               pointBackgroundColor: '#3b82f6',
@@ -287,7 +314,11 @@
               backgroundColor: '#1e293b',
               padding: 10,
               callbacks: {
-                label: ctx => ' ' + ctx.dataset.label + ': Rp ' + Number(ctx.parsed.y).toLocaleString('id-ID', {minimumFractionDigits: 2})
+                label: ctx => {
+                    let idr = Number(ctx.parsed.y);
+                    let eth = idr / currentEthPrice;
+                    return ` ${ctx.dataset.label}: Rp ${formatIdr(idr)} (≈ ${formatEth(eth)} ETH)`;
+                }
               }
             }
           },
@@ -297,7 +328,7 @@
               grid: { color: '#f1f5f9' },
               ticks: {
                 font: { weight: 'bold', size: 10 },
-                callback: val => 'Rp ' + (val >= 1000000 ? (val/1000000).toFixed(1)+'jt' : val.toLocaleString('id-ID'))
+                callback: val => 'Rp ' + (val >= 1000000 ? (val/1000000).toFixed(1)+'jt' : formatIdr(val))
               }
             },
             x: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 10 } } }
@@ -309,7 +340,7 @@
       new Chart(document.getElementById('donutChart'), {
         type: 'doughnut',
         data: {
-          labels: ['Zakat', 'Infak Terikat', 'Infak Tidak Terikat', 'Hak Amil'],
+          labels: ['Zakat', 'Infak Terikat', 'Infak / DSKL', 'Hak Amil'],
           datasets: [{
             data: donutData,
             backgroundColor: ['#059669', '#3b82f6', '#f59e0b', '#64748b'],
@@ -336,7 +367,11 @@
               backgroundColor: '#1e293b',
               padding: 10,
               callbacks: {
-                label: ctx => ' ' + ctx.label + ': Rp ' + Number(ctx.parsed).toLocaleString('id-ID', {minimumFractionDigits: 2})
+                label: ctx => {
+                    let eth = Number(ctx.parsed);
+                    let idr = eth * currentEthPrice;
+                    return ` ${ctx.label}: Rp ${formatIdr(idr)} (≈ ${formatEth(eth)} ETH)`;
+                }
               }
             }
           }

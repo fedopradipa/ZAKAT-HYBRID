@@ -8,6 +8,7 @@ use App\Models\Distribution;
 use App\Models\Mustahik;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\EthPriceService; // Tambahkan import service
 
 class PemerintahController extends Controller
 {
@@ -27,13 +28,16 @@ class PemerintahController extends Controller
 
     /**
      * Halaman Pengumpulan ZIS-DSKL
+     * Inject EthPriceService ke dalam parameter fungsi
      */
-    public function pengumpulanZisDskl(Request $request)
+    public function pengumpulanZisDskl(Request $request, EthPriceService $ethPriceService)
     {
         $tahun = $request->input('tahun', now()->year);
+        
+        // Ambil harga ETH to IDR dari CoinGecko (Service)
+        $ethPriceIdr = $ethPriceService->getEthToIdr();
 
         // ── CARDS ──────────────────────────────────────────────────────
-        // Ambil total per jenis_dana untuk tahun yang dipilih
         $totalsRaw = Transaction::whereYear('created_at', $tahun)
             ->select('jenis_dana', DB::raw('SUM(nominal) as total'))
             ->groupBy('jenis_dana')
@@ -44,7 +48,6 @@ class PemerintahController extends Controller
         $totalInfakBebas    = 0;
         $totalHakAmil       = 0;
 
-        // Petakan string dinamis dari DB ke 4 Kategori Card
         foreach ($totalsRaw as $jenis => $total) {
             $jenisLower = strtolower($jenis);
 
@@ -55,13 +58,11 @@ class PemerintahController extends Controller
             } elseif (str_contains($jenisLower, 'amil')) {
                 $totalHakAmil += $total;
             } else {
-                // Infak Umum, DSKL, Fidyah, dll masuk ke Infak Bebas (Tidak Terikat)
                 $totalInfakBebas += $total;
             }
         }
 
         // ── DATA CHART BULANAN ─────────────────────────────────────────
-        // Ambil total per bulan, dipisah per jenis_dana
         $chartRaw = Transaction::whereYear('created_at', $tahun)
             ->select(
                 DB::raw('MONTH(created_at) as bulan'),
@@ -71,7 +72,6 @@ class PemerintahController extends Controller
             ->groupBy('bulan', 'jenis_dana')
             ->get();
 
-        // Inisialisasi array 12 bulan dengan 0
         $bulanLabel = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
         $dataZakatBulan      = array_fill(0, 12, 0);
         $dataInfakBulan      = array_fill(0, 12, 0);
@@ -86,7 +86,6 @@ class PemerintahController extends Controller
             if (str_contains($jenisLower, 'zakat')) {
                 $dataZakatBulan[$idx] += $row->total;
             } else {
-                // Semua selain Zakat (Infak, DSKL, Fidyah) masuk ke line chart Infak
                 $dataInfakBulan[$idx] += $row->total;
             }
         }
@@ -94,10 +93,10 @@ class PemerintahController extends Controller
         // ── DONUT CHART ────────────────────────────────────────────────
         $totalKeseluruhan   = $totalZakat + $totalInfakTerikat + $totalInfakBebas + $totalHakAmil;
         $donutData = [
-            round($totalZakat,        2),
-            round($totalInfakTerikat, 2),
-            round($totalInfakBebas,   2),
-            round($totalHakAmil,      2),
+            round($totalZakat,        4),
+            round($totalInfakTerikat, 4),
+            round($totalInfakBebas,   4),
+            round($totalHakAmil,      4),
         ];
 
         // ── TABEL ──────────────────────────────────────────────────────
@@ -105,10 +104,11 @@ class PemerintahController extends Controller
             ->whereYear('created_at', $tahun)
             ->orderBy('created_at', 'desc')
             ->paginate(10)
-            ->withQueryString(); // agar filter tahun tetap saat ganti halaman
+            ->withQueryString();
 
         return view('dashboard.pemerintah.pengumpulanZIS.index', compact(
             'tahun',
+            'ethPriceIdr', // Kirim ke View
             'totalZakat',
             'totalInfakTerikat',
             'totalInfakBebas',

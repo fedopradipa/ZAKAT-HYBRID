@@ -1,350 +1,354 @@
-{{-- resources/views/dashboard/pemerintah/pengumpulanZIS/index.blade.php --}}
-
-<x-layouts.admin title="Pengumpulan ZIS DSKL">
+<x-layouts.portal title="Form Pembayaran Zakat">
 
   @push('styles')
   <style>
-    .animate-fade-in-up { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .type-btn.active {
+      border-color: #10b981;
+      background-color: #f0fdf4;
+      color: #047857;
+    }
+
+    /* Menghilangkan panah atas/bawah pada input number */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
   </style>
   @endpush
 
-  <div class="space-y-6 animate-fade-in-up">
-
-    {{-- ── HEADER ───────────────────────────────────────────────────── --}}
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <h1 class="text-xl font-black text-slate-800 tracking-tight">PENGUMPULAN ZIS DSKL</h1>
-
-      {{-- Filter Tahun --}}
-      <form method="GET" action="{{ route('pemerintah.pengumpulan_zis_dskl') }}" class="flex items-center gap-2">
-        <label class="text-xs font-semibold text-slate-500">Pilih Tahun Pengumpulan</label>
-        <input
-          type="number"
-          name="tahun"
-          value="{{ $tahun }}"
-          min="2020"
-          max="{{ now()->year }}"
-          placeholder="Tahun"
-          class="border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 focus:outline-none focus:border-emerald-500 w-28"
-        />
-        <button type="submit"
-          class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2 rounded-lg text-sm transition-all active:scale-95">
-          Filter
-        </button>
-      </form>
+  <div class="max-w-3xl mx-auto px-6 py-10">
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center gap-1.5 text-[10px] font-bold text-amber-500 bg-white border border-amber-100 px-3 py-1 rounded-full mb-4 shadow-sm">
+        🔒 Aman & Transparan di Blockchain
+      </div>
+      <h1 class="text-2xl font-extrabold text-slate-800">Tunaikan ZIS Anda dengan</h1>
+      <h2 class="text-2xl font-extrabold text-emerald-500 mb-2">Aman dan Mudah</h2>
+      <p class="text-xs text-slate-400 font-medium">Pembayaran tercatat permanen di Polygon Blockchain</p>
     </div>
 
-    {{-- ── SUB HEADER TAHUN ─────────────────────────────────────────── --}}
-    <p class="text-sm font-semibold text-slate-700">
-      Informasi Pengumpulan Pada Tahun {{ $tahun }}
-    </p>
+    <div class="max-w-2xl mx-auto space-y-6">
 
-    {{-- ── 4 CARDS ──────────────────────────────────────────────────── --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
-      {{-- Card: Zakat --}}
-      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-emerald-300 transition-colors">
-        <p class="text-xs text-slate-500 font-semibold mb-3">Zakat</p>
-        <p class="text-2xl font-black text-slate-800">
-          Rp {{ number_format($totalZakat, 2, ',', '.') }}
-        </p>
-      </div>
-
-      {{-- Card: Infak Terikat --}}
-      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-blue-300 transition-colors">
-        <p class="text-xs text-slate-500 font-semibold mb-3">Infak Terikat</p>
-        <p class="text-2xl font-black text-slate-800">
-          Rp {{ number_format($totalInfakTerikat, 2, ',', '.') }}
-        </p>
-      </div>
-
-      {{-- Card: Infak Tidak Terikat & DSKL --}}
-      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-blue-300 transition-colors">
-        <p class="text-xs text-slate-500 font-semibold mb-3" title="Mencakup Infak Umum, DSKL, Fidyah, dll">Infak Tidak Terikat & DSKL</p>
-        <p class="text-2xl font-black text-slate-800">
-          Rp {{ number_format($totalInfakBebas, 2, ',', '.') }}
-        </p>
-      </div>
-
-      {{-- Card: Hak Amil --}}
-      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-amber-300 transition-colors">
-        <p class="text-xs text-slate-500 font-semibold mb-3">Hak Amil</p>
-        <p class="text-2xl font-black text-slate-800">
-          Rp {{ number_format($totalHakAmil, 2, ',', '.') }}
-        </p>
-      </div>
-
-    </div>
-
-    {{-- ── ROW 1 CHARTS: Bar ZIS DSKL + Donut ─────────────────────── --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-      {{-- Bar Chart: Pengumpulan Bulanan ZIS DSKL --}}
-      <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-        <h3 class="font-black text-slate-800 text-base mb-1">Pengumpulan Bulanan ZIS DSKL</h3>
-        <div class="flex items-center gap-2 mb-4">
-          <span class="inline-block w-3 h-3 rounded-sm bg-emerald-500"></span>
-          <span class="text-xs text-slate-500 font-semibold">Total Pengumpulan</span>
+      {{-- PILIH JENIS DANA --}}
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <label class="block text-slate-700 font-semibold mb-3 text-sm">Pilih Jenis Dana</label>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <button type="button" class="type-btn active flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 transition-all hover:border-emerald-300" data-type="Zakat">
+            <span class="text-xl mb-1">🌙</span><span class="text-[10px] font-semibold">Zakat</span>
+          </button>
+          <button type="button" class="type-btn flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 transition-all hover:border-emerald-300" data-type="Infak">
+            <span class="text-xl mb-1">❤️</span><span class="text-[10px] font-semibold">Infak/Sedekah</span>
+          </button>
+          <button type="button" class="type-btn flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 transition-all hover:border-emerald-300" data-type="Fidyah">
+            <span class="text-xl mb-1">🥣</span><span class="text-[10px] font-semibold">Fidyah</span>
+          </button>
+          <button type="button" class="type-btn flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 transition-all hover:border-emerald-300" data-type="DSKL">
+            <span class="text-xl mb-1">🤝</span><span class="text-[10px] font-semibold">DSKL</span>
+          </button>
         </div>
-        <div class="relative h-64 w-full">
-          <canvas id="barChart"></canvas>
+        <div id="infoBox" class="mt-4 flex items-center gap-1.5 text-blue-500 text-[10px] font-medium bg-blue-50 w-max px-2 py-1 rounded">
+          <span>ℹ️</span> <span id="infoText">Kewajiban 2.5% dari harta</span>
         </div>
       </div>
 
-      {{-- Donut Chart: Persentase Jenis Dana --}}
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col">
-        <h3 class="font-black text-slate-800 text-base mb-1 text-center">Persentase Jenis Dana</h3>
-        <div class="relative flex-1 flex justify-center items-center min-h-[220px]">
-          <canvas id="donutChart"></canvas>
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        {{-- SUB JENIS DANA --}}
+        <div class="mb-5" id="containerSubJenis">
+          <label id="labelSubJenis" class="block text-slate-700 font-semibold mb-2 text-sm">Sub Jenis Dana</label>
+          <select id="subJenisDana" class="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm text-slate-700 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+          </select>
+        </div>
+
+        {{-- NOMINAL PEMBAYARAN --}}
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <label class="block text-slate-700 font-semibold text-sm">Nominal Pembayaran</label>
+            <div class="flex bg-slate-100 p-0.5 rounded-md border border-slate-200">
+              <button type="button" id="btnEth" class="px-3 py-1 bg-white shadow-sm rounded text-[10px] font-bold text-slate-700 transition-all">ETH</button>
+              <button type="button" id="btnIdr" class="px-3 py-1 rounded text-[10px] font-bold text-slate-400 hover:text-slate-600 transition-all">IDR</button>
+            </div>
+          </div>
+          <div class="flex">
+            <span id="labelCurrency" class="inline-flex items-center px-4 rounded-l-lg border border-r-0 border-slate-300 bg-slate-50 text-slate-500 text-sm font-semibold">
+              ETH
+            </span>
+            <input type="number" id="nominal" step="0.01" placeholder="0.00" class="flex-1 w-full bg-white border border-slate-300 rounded-none rounded-r-lg px-4 py-2.5 text-sm font-semibold text-slate-800 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500">
+          </div>
+          {{-- KALKULASI REAL TIME AKAN MUNCUL DI SINI --}}
+          <p id="priceHelper" class="text-[11px] text-emerald-600 mt-2 font-bold bg-emerald-50 px-2 py-1 inline-block rounded">
+            Memuat harga ETH...
+          </p>
         </div>
       </div>
 
+      {{-- DATA PEMBAYAR --}}
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-slate-700 font-bold text-sm">Data Pembayar</h3>
+          {{-- CHECKBOX ANONIM (HAMBA ALLAH) --}}
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="is_anonim" class="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500">
+            <span class="text-xs font-bold text-slate-600">Sembunyikan Nama (Hamba Allah)</span>
+          </label>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-slate-600 font-medium mb-1 text-xs">Nama Lengkap</label>
+            <input type="text" id="nama" placeholder="Masukkan nama lengkap" value="{{ Auth::check() && Auth::user()->name != 'Hamba Allah' ? Auth::user()->name : '' }}" class="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500 transition-all disabled:bg-slate-100 disabled:text-slate-400">
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-slate-600 font-medium mb-1 text-xs">Nomor Handphone</label>
+              <input type="text" placeholder="08xx-xxxx-xxxx" class="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block text-slate-600 font-medium mb-1 text-xs">Email</label>
+              {{-- PERBAIKAN LOGIKA EMAIL: Mencegah email dummy @zakat.local tampil di form --}}
+              <input type="email" id="email" placeholder="email@contoh.com" value="{{ Auth::check() && !str_contains(Auth::user()->email, '@zakat.local') ? Auth::user()->email : '' }}" class="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" id="btnProceed" class="w-full bg-[#059669] hover:bg-[#047857] text-white font-bold py-3.5 rounded-lg shadow-md transition-all text-sm flex items-center justify-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+        </svg>
+        <span id="btnText">{{ Auth::check() ? 'LANJUTKAN PEMBAYARAN' : 'CONNECT & BAYAR' }}</span>
+      </button>
     </div>
-
-    {{-- ── ROW 2 CHARTS: Line Chart Zakat vs Infak ─────────────────── --}}
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-      <h3 class="font-black text-slate-800 text-base mb-1">Tren Zakat vs Infak/Lainnya</h3>
-      <div class="flex items-center gap-4 mb-4">
-        <span class="flex items-center gap-1.5">
-          <span class="inline-block w-3 h-3 rounded-sm bg-orange-400"></span>
-          <span class="text-xs text-slate-500 font-semibold">Zakat</span>
-        </span>
-        <span class="flex items-center gap-1.5">
-          <span class="inline-block w-3 h-3 rounded-sm bg-blue-400"></span>
-          <span class="text-xs text-slate-500 font-semibold">Infak & Lainnya</span>
-        </span>
-      </div>
-      <div class="relative h-64 w-full">
-        <canvas id="lineChart"></canvas>
-      </div>
-    </div>
-
-    {{-- ── TABEL DETAIL SETORAN ─────────────────────────────────────── --}}
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-
-      <div class="px-6 py-5 border-b border-slate-200 bg-slate-50/50">
-        <h2 class="text-base font-black text-slate-800">Detail Setoran Muzakki</h2>
-        <p class="text-xs text-slate-500 font-medium mt-0.5">Seluruh data divalidasi dan tercatat permanen di jaringan Blockchain.</p>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="bg-slate-50 border-b border-slate-200">
-              <th class="px-6 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">#</th>
-              <th class="px-6 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Muzakki</th>
-              <th class="px-6 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Jenis Dana</th>
-              <th class="px-6 py-3 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Nominal (IDR)</th>
-              <th class="px-6 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Tanggal</th>
-              <th class="px-6 py-3 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-100">
-            @forelse($dataMuzakki as $tx)
-              <tr class="hover:bg-slate-50/50 transition-colors">
-                <td class="px-6 py-4 text-xs text-slate-400 font-mono">
-                  {{ $dataMuzakki->firstItem() + $loop->index }}
-                </td>
-                <td class="px-6 py-4">
-                  <p class="font-bold text-slate-800 text-xs">{{ $tx->user->name ?? 'Hamba Allah' }}</p>
-                  <p class="font-mono text-[10px] text-slate-400 mt-0.5">
-                    {{ substr($tx->user->wallet_address ?? 'Anonim', 0, 10) }}...
-                  </p>
-                </td>
-                <td class="px-6 py-4">
-                  <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">
-                    {{ $tx->jenis_dana }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-right">
-                  <div class="font-black text-emerald-600 text-sm whitespace-nowrap">
-                    Rp {{ number_format($tx->nominal, 2, ',', '.') }}
-                  </div>
-                </td>
-                <td class="px-6 py-4 text-slate-600 text-xs font-semibold whitespace-nowrap">
-                  {{ $tx->created_at->format('d M Y, H:i') }}
-                </td>
-                <td class="px-6 py-4 text-center">
-                  <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-black uppercase rounded-full tracking-widest whitespace-nowrap">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Verified
-                  </span>
-                </td>
-              </tr>
-            @empty
-              <tr>
-                <td colspan="6" class="px-6 py-16 text-center">
-                  <div class="text-4xl mb-3 opacity-50">📁</div>
-                  <p class="text-slate-500 font-bold text-sm">Belum ada data pengumpulan untuk tahun {{ $tahun }}.</p>
-                </td>
-              </tr>
-            @endforelse
-          </tbody>
-        </table>
-      </div>
-
-      {{-- Pagination --}}
-      @if($dataMuzakki->hasPages())
-      <div class="px-6 py-4 border-t border-slate-200">
-        {{ $dataMuzakki->links() }}
-      </div>
-      @endif
-
-    </div>
-
   </div>
 
-  {{-- ── SCRIPTS CHART.JS ─────────────────────────────────────────────── --}}
   @push('scripts')
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+    const ABI_VAULT = ["function bayarZIS(string memory _tipeDana) public payable"];
 
-      Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
-      Chart.defaults.color = '#64748b';
+    let isUserAuth = @json(Auth::check());
+    let zakatType = "Zakat";
+    let currentCurrency = "ETH";
+    let ethPriceInIdr = 50000000;
 
-      // ── Data dari PHP (real DB) ──────────────────────────────────
-      const labels      = @json($bulanLabel);
-      const totalBulan  = @json($dataTotalBulan);
-      const zakatBulan  = @json($dataZakatBulan);
-      const infakBulan  = @json($dataInfakBulan);
-      const donutData   = @json($donutData);
+    // DATA MAPPING SUB-JENIS
+    const subJenisDataMap = {
+      'Zakat': { label: 'Sub Jenis Zakat', info: 'Kewajiban 2.5% dari harta', options: ['Zakat Maal', 'Zakat Penghasilan', 'Zakat Fitrah'] },
+      'Infak': { label: 'Pilih Program Infak/Sedekah', info: 'Sedekah membersihkan jiwa', options: ['Infak Umum', 'Program Pendidikan', 'Program Kemanusiaan', 'Pembangunan Masjid'] },
+      'Fidyah': { label: '', info: 'Tebusan bagi yang tidak mampu berpuasa', options: [] },
+      'DSKL': { label: '', info: 'Dana Sosial Keagamaan Lainnya', options: [] }
+    };
 
-      // ── 1. BAR CHART ─────────────────────────────────────────────
-      new Chart(document.getElementById('barChart'), {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Total Pengumpulan',
-            data: totalBulan,
-            backgroundColor: '#10b981',
-            hoverBackgroundColor: '#059669',
-            borderRadius: 4,
-            barPercentage: 0.55,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: '#1e293b',
-              padding: 10,
-              callbacks: {
-                label: ctx => ' Rp ' + Number(ctx.parsed.y).toLocaleString('id-ID', {minimumFractionDigits: 2})
-              }
+    const containerSubJenis = document.getElementById('containerSubJenis');
+    const selectSubJenis = document.getElementById('subJenisDana');
+    const labelSubJenis = document.getElementById('labelSubJenis');
+    const infoText = document.getElementById('infoText');
+    const inputNominal = document.getElementById('nominal');
+    const priceHelper = document.getElementById('priceHelper');
+
+    function updateFormDisplay(type) {
+      const data = subJenisDataMap[type];
+      infoText.innerText = data.info;
+      selectSubJenis.innerHTML = '';
+      if (data.options.length > 0) {
+        containerSubJenis.classList.remove('hidden');
+        labelSubJenis.innerText = data.label;
+        data.options.forEach(opt => {
+          let el = document.createElement('option');
+          el.value = opt; el.innerText = opt;
+          selectSubJenis.appendChild(el);
+        });
+      } else {
+        containerSubJenis.classList.add('hidden');
+      }
+    }
+
+    updateFormDisplay('Zakat');
+
+    // Fetch Harga ETH
+    fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=idr')
+      .then(res => res.json())
+      .then(data => {
+        ethPriceInIdr = data.ethereum.idr;
+        calculateRealTime();
+      })
+      .catch(err => console.log("Gagal memuat harga ETH terbaru."));
+
+    // LOGIKA CHECKBOX ANONIM (HAMBA ALLAH)
+    const chkAnonim = document.getElementById('is_anonim');
+    const inputNama = document.getElementById('nama');
+    let namaAsli = inputNama.value;
+
+    chkAnonim.addEventListener('change', (e) => {
+      if(e.target.checked) {
+        namaAsli = inputNama.value;
+        inputNama.value = 'Hamba Allah';
+        inputNama.disabled = true;
+      } else {
+        inputNama.value = namaAsli === 'Hamba Allah' ? '' : namaAsli;
+        inputNama.disabled = false;
+      }
+    });
+
+    // LOGIKA KALKULASI REAL-TIME
+    function calculateRealTime() {
+      const val = parseFloat(inputNominal.value) || 0;
+      if (val === 0) {
+        priceHelper.innerText = `1 ETH ≈ Rp ${ethPriceInIdr.toLocaleString('id-ID')}`;
+        return;
+      }
+      
+      if (currentCurrency === 'ETH') {
+        const idr = val * ethPriceInIdr;
+        priceHelper.innerText = `Setara: Rp ${idr.toLocaleString('id-ID')} (via CoinGecko)`;
+      } else {
+        const eth = val / ethPriceInIdr;
+        priceHelper.innerText = `Setara: ${eth.toFixed(6)} ETH (via CoinGecko)`;
+      }
+    }
+
+    inputNominal.addEventListener('input', calculateRealTime);
+
+    document.querySelectorAll('.type-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        zakatType = btn.dataset.type;
+        updateFormDisplay(zakatType);
+      });
+    });
+
+    const btnEth = document.getElementById('btnEth');
+    const btnIdr = document.getElementById('btnIdr');
+    const labelCurrency = document.getElementById('labelCurrency');
+
+    btnIdr.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (currentCurrency === 'IDR') return;
+      currentCurrency = 'IDR';
+      btnIdr.classList.add('bg-white', 'shadow-sm', 'text-slate-700');
+      btnEth.classList.remove('bg-white', 'shadow-sm', 'text-slate-700');
+      labelCurrency.innerText = 'Rp';
+      if (inputNominal.value) inputNominal.value = Math.round(parseFloat(inputNominal.value) * ethPriceInIdr);
+      calculateRealTime();
+    });
+
+    btnEth.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (currentCurrency === 'ETH') return;
+      currentCurrency = 'ETH';
+      btnEth.classList.add('bg-white', 'shadow-sm', 'text-slate-700');
+      btnIdr.classList.remove('bg-white', 'shadow-sm', 'text-slate-700');
+      labelCurrency.innerText = 'ETH';
+      if (inputNominal.value) inputNominal.value = (parseFloat(inputNominal.value) / ethPriceInIdr).toFixed(4);
+      calculateRealTime();
+    });
+
+    // Eksekusi Pembayaran
+    document.getElementById('btnProceed').addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (!window.ethereum) return alert("MetaMask tidak ditemukan!");
+
+      const rawNominal = inputNominal.value;
+      if (!rawNominal || rawNominal <= 0) return alert("Silakan isi nominal pembayaran!");
+
+      let finalEthValue = rawNominal;
+      if (currentCurrency === 'IDR') {
+        finalEthValue = (parseFloat(rawNominal) / ethPriceInIdr).toString();
+      }
+
+      // ✅ LOGIKA BARU: Silent Login - Menghubungkan sesi tanpa Redirect halaman!
+      if (!isUserAuth) {
+        try {
+            if (typeof showGlobalLoader === 'function') showGlobalLoader("🦊", "Autentikasi Aman", "Menyiapkan sesi pembayaran Anda...");
+
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            const wallet = await signer.getAddress();
+
+            // Lakukan login ke backend secara diam-diam
+            const loginRes = await fetch("{{ route('login.wallet') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    wallet_address: wallet,
+                    role: 'muzakki' // Default otomatis untuk pembayar
+                })
+            });
+
+            const loginData = await loginRes.json();
+            if (loginData.status !== 'success') {
+                throw new Error(loginData.message || "Gagal membuat sesi login.");
             }
+            
+            // Sesi sukses dibuat! Kita lanjutkan tanpa me-refresh halaman.
+            isUserAuth = true; 
+        } catch (error) {
+            console.error(error);
+            if (document.getElementById('loader')) document.getElementById('loader').classList.add('hidden');
+            return alert("Gagal melakukan autentikasi: " + error.message);
+        }
+      }
+
+      try {
+        if (typeof showGlobalLoader === 'function') showGlobalLoader("🛡️", "Konfirmasi", "Setujui transaksi di MetaMask.");
+
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI_VAULT, signer);
+
+        const selectedSub = selectSubJenis.value || "";
+        const fullType = selectedSub ? `${zakatType} - ${selectedSub}` : zakatType;
+
+        const tx = await contract.bayarZIS(fullType, {
+          value: ethers.parseEther(finalEthValue.toString())
+        });
+
+        if (typeof showGlobalLoader === 'function') showGlobalLoader("🔄", "Memproses", "Menunggu konfirmasi blockchain...");
+        await tx.wait();
+
+        if (typeof showGlobalLoader === 'function') showGlobalLoader("💾", "Menyimpan", "Mencatat transaksi ke sistem...");
+
+        // Kirim data ke Controller (dengan || null agar validation nullable laravel lolos)
+        const response = await fetch("{{ route('muzakki.transaction.store') }}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
           },
-          scales: {
-            y: {
-              beginAtZero: true,
-              grid: { color: '#f1f5f9' },
-              ticks: {
-                font: { weight: 'bold', size: 10 },
-                callback: val => 'Rp ' + (val >= 1000000 ? (val/1000000).toFixed(1)+'jt' : val.toLocaleString('id-ID'))
-              }
-            },
-            x: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 10 } } }
-          }
-        }
-      });
+          body: JSON.stringify({
+            jenis_dana: fullType,
+            nominal: finalEthValue,
+            tx_hash: tx.hash,
+            nama: inputNama.value || null,
+            email: document.getElementById('email').value || null,
+            is_anonim: chkAnonim.checked
+          })
+        });
 
-      // ── 2. LINE CHART ─────────────────────────────────────────────
-      new Chart(document.getElementById('lineChart'), {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: 'Zakat',
-              data: zakatBulan,
-              borderColor: '#f97316',
-              backgroundColor: 'rgba(249,115,22,0.08)',
-              pointBackgroundColor: '#f97316',
-              pointRadius: 4,
-              tension: 0.3,
-              fill: false,
-            },
-            {
-              label: 'Infak & Lainnya',
-              data: infakBulan,
-              borderColor: '#3b82f6',
-              backgroundColor: 'rgba(59,130,246,0.08)',
-              pointBackgroundColor: '#3b82f6',
-              pointRadius: 4,
-              tension: 0.3,
-              fill: false,
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: '#1e293b',
-              padding: 10,
-              callbacks: {
-                label: ctx => ' ' + ctx.dataset.label + ': Rp ' + Number(ctx.parsed.y).toLocaleString('id-ID', {minimumFractionDigits: 2})
-              }
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              grid: { color: '#f1f5f9' },
-              ticks: {
-                font: { weight: 'bold', size: 10 },
-                callback: val => 'Rp ' + (val >= 1000000 ? (val/1000000).toFixed(1)+'jt' : val.toLocaleString('id-ID'))
-              }
-            },
-            x: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 10 } } }
-          }
-        }
-      });
+        const data = await response.json();
 
-      // ── 3. DONUT CHART ────────────────────────────────────────────
-      new Chart(document.getElementById('donutChart'), {
-        type: 'doughnut',
-        data: {
-          labels: ['Zakat', 'Infak Terikat', 'Infak Tdk Terikat & Lainnya', 'Hak Amil'],
-          datasets: [{
-            data: donutData,
-            backgroundColor: ['#059669', '#3b82f6', '#f59e0b', '#64748b'],
-            borderWidth: 4,
-            borderColor: '#ffffff',
-            hoverOffset: 4
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '68%',
-          plugins: {
-            legend: {
-              position: 'bottom',
-              labels: {
-                padding: 16,
-                usePointStyle: true,
-                pointStyle: 'circle',
-                font: { weight: 'bold', size: 10 }
-              }
-            },
-            tooltip: {
-              backgroundColor: '#1e293b',
-              padding: 10,
-              callbacks: {
-                label: ctx => ' ' + ctx.label + ': Rp ' + Number(ctx.parsed).toLocaleString('id-ID', {minimumFractionDigits: 2})
-              }
-            }
-          }
+        // Pengecekan Error API (Mencegah Silent Failure)
+        if (!response.ok || data.status !== 'success') {
+           throw new Error(data.message || "Gagal menyimpan data ke database server.");
         }
-      });
 
+        alert("Alhamdulillah, Pembayaran berhasil dan tercatat!");
+        
+        // Redirect difokuskan ke Dashboard yang biasanya menampung History
+        window.location.href = "{{ route('muzakki.dashboard') }}";
+
+      } catch (error) {
+        console.error(error);
+        if (document.getElementById('loader')) document.getElementById('loader').classList.add('hidden');
+        alert("Terjadi kesalahan: " + error.message);
+      }
     });
   </script>
   @endpush
-
-</x-layouts.admin>
+</x-layouts.portal>
