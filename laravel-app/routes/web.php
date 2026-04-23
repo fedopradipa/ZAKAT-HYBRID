@@ -7,6 +7,7 @@ use App\Http\Controllers\ZakatController;
 use App\Http\Controllers\Admin\KeuanganController;
 use App\Http\Controllers\Admin\PenyaluranController;
 use App\Http\Controllers\Admin\PemerintahController;
+use App\Http\Controllers\Public\ProgramController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,6 +16,14 @@ use App\Http\Controllers\Admin\PemerintahController;
 */
 
 Route::get('/', [AuthController::class, 'index'])->name('login');
+
+
+// ✅ RUTE BARU: Halaman Program Penyaluran (Untuk Publik)
+Route::get('/program', [ProgramController::class, 'index'])->name('program.index');
+
+// ✅ RUTE BARU: Halaman Detail Program (Penyebab error sebelumnya)
+Route::get('/program/{id}', [ProgramController::class, 'show'])->name('program.show');
+
 
 Route::get('/bayar-zakat', function () {
     if (Auth::check() && Auth::user()->role !== 'muzakki') {
@@ -52,14 +61,15 @@ Route::middleware(['auth'])->group(function () {
      * ROLE: KEUANGAN
      */
     Route::middleware(['role:keuangan'])->prefix('keuangan')->name('keuangan.')->group(function () {
-        Route::get('/dashboard', [KeuanganController::class, 'index'])->name('dashboard');
+        // Dashboard redirect langsung ke pengajuan
+        Route::get('/dashboard', function () {
+            return redirect()->route('keuangan.pengajuan');
+        })->name('dashboard');
+
         Route::get('/pengajuan', [KeuanganController::class, 'pengajuan'])->name('pengajuan');
         Route::get('/pengajuan/{id}/review', [KeuanganController::class, 'review'])->name('review');
         Route::post('/pengajuan/{id}/approve', [KeuanganController::class, 'approve'])->name('approve');
-        Route::get('/laporan', function () { return "Halaman Laporan (WIP)"; })->name('report');
-        Route::get('/fifo', [KeuanganController::class, 'fifoLaporan'])->name('fifo');
     });
-
     /**
      * ROLE: PENYALURAN
      */
@@ -81,9 +91,9 @@ Route::middleware(['auth'])->group(function () {
         
         // Rute spesifik untuk sidebar
         Route::get('/pengumpulan-zis-dskl', [PemerintahController::class, 'pengumpulanZisDskl'])->name('pengumpulan_zis_dskl');
-        
-        // Placeholder rute untuk Penyaluran & Laporan (Arahkan ke fungsi yang sama dulu, ganti controllernya nanti jika sudah dibuat)
-        Route::get('/penyaluran-zis-dskl', [PemerintahController::class, 'pengumpulanZisDskl'])->name('penyaluran_zis_dskl'); 
+        Route::get('/penyaluran-zis-dskl', [PemerintahController::class, 'penyaluranZisDskl'])->name('penyaluran_zis_dskl');
+        Route::get('/program-penyaluran', [PemerintahController::class, 'programPenyaluran'])->name('program_penyaluran');
         Route::get('/laporan-baznas', [PemerintahController::class, 'pengumpulanZisDskl'])->name('laporan_baznas'); 
+
     });
 });

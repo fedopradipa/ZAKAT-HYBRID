@@ -32,20 +32,17 @@
       {{-- PILIH JENIS DANA --}}
       <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
         <label class="block text-slate-700 font-semibold mb-3 text-sm">Pilih Jenis Dana</label>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <button type="button" class="type-btn active flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 transition-all hover:border-emerald-300" data-type="Zakat">
-            <span class="text-xl mb-1">🌙</span><span class="text-[10px] font-semibold">Zakat</span>
-          </button>
-          <button type="button" class="type-btn flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 transition-all hover:border-emerald-300" data-type="Infak">
-            <span class="text-xl mb-1">❤️</span><span class="text-[10px] font-semibold">Infak/Sedekah</span>
-          </button>
-          <button type="button" class="type-btn flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 transition-all hover:border-emerald-300" data-type="Fidyah">
-            <span class="text-xl mb-1">🥣</span><span class="text-[10px] font-semibold">Fidyah</span>
-          </button>
-          <button type="button" class="type-btn flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 transition-all hover:border-emerald-300" data-type="DSKL">
-            <span class="text-xl mb-1">🤝</span><span class="text-[10px] font-semibold">DSKL</span>
-          </button>
-        </div>
+          <div class="grid grid-cols-3 gap-3">
+            <button type="button" class="type-btn active flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 transition-all hover:border-emerald-300" data-type="Zakat">
+              <span class="text-xl mb-1">🌙</span><span class="text-[10px] font-semibold">Zakat</span>
+            </button>
+            <button type="button" class="type-btn flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 transition-all hover:border-emerald-300" data-type="Infak">
+              <span class="text-xl mb-1">❤️</span><span class="text-[10px] font-semibold">Infak/Sedekah</span>
+            </button>
+            <button type="button" class="type-btn flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 transition-all hover:border-emerald-300" data-type="DSKL">
+              <span class="text-xl mb-1">🤝</span><span class="text-[10px] font-semibold">DSKL</span>
+            </button>
+          </div>
         <div id="infoBox" class="mt-4 flex items-center gap-1.5 text-blue-500 text-[10px] font-medium bg-blue-50 w-max px-2 py-1 rounded">
           <span>ℹ️</span> <span id="infoText">Kewajiban 2.5% dari harta</span>
         </div>
@@ -112,6 +109,36 @@
         </div>
       </div>
 
+      {{-- BREAKDOWN BOX --}}
+      <div id="breakdownBox" class="bg-amber-50 border border-amber-200 rounded-xl p-4 hidden">
+        <p class="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-3">
+          💡 Rincian Pembayaran Anda
+        </p>
+        <div class="space-y-2 text-xs">
+          <div class="flex justify-between text-slate-600">
+            <span class="font-medium">Total dibayarkan</span>
+            <span id="bd-total" class="font-black font-mono text-slate-800"></span>
+          </div>
+          <div class="flex justify-between text-slate-600">
+            <span class="font-medium">Dana ZIS (87.5%)</span>
+            <span id="bd-zis" class="font-black font-mono text-emerald-700"></span>
+          </div>
+          <div class="flex justify-between text-slate-500">
+            <span class="font-medium flex items-center gap-1">
+              Hak Amil BAZNAS (12.5%)
+              <span class="bg-amber-200 text-amber-800 text-[9px] px-1.5 py-0.5 rounded font-black">Operasional</span>
+            </span>
+            <span id="bd-amil" class="font-bold font-mono text-amber-600"></span>
+          </div>
+          <div class="border-t border-amber-200 pt-2 mt-1">
+            <p class="text-[10px] text-amber-600 font-semibold leading-relaxed">
+              ⚠️ Dana yang tersalurkan ke mustahik adalah <strong>87.5%</strong> dari nominal yang Anda bayarkan.
+              Sisanya 12.5% merupakan hak amil sesuai syariat Islam (QS. At-Taubah: 60).
+            </p>
+          </div>
+        </div>
+      </div>
+
       <button type="button" id="btnProceed" class="w-full bg-[#059669] hover:bg-[#047857] text-white font-bold py-3.5 rounded-lg shadow-md transition-all text-sm flex items-center justify-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
@@ -134,9 +161,8 @@
     // DATA MAPPING SUB-JENIS
     const subJenisDataMap = {
       'Zakat': { label: 'Sub Jenis Zakat', info: 'Kewajiban 2.5% dari harta', options: ['Zakat Maal', 'Zakat Penghasilan', 'Zakat Fitrah'] },
-      'Infak': { label: 'Pilih Program Infak/Sedekah', info: 'Sedekah membersihkan jiwa', options: ['Infak Umum', 'Program Pendidikan', 'Program Kemanusiaan', 'Pembangunan Masjid'] },
-      'Fidyah': { label: '', info: 'Tebusan bagi yang tidak mampu berpuasa', options: [] },
-      'DSKL': { label: '', info: 'Dana Sosial Keagamaan Lainnya', options: [] }
+      'Infak': { label: '', info: 'Sedekah membersihkan jiwa', options: [] },
+      'DSKL':  { label: '', info: 'Dana Sosial Keagamaan Lainnya', options: [] }
     };
 
     const containerSubJenis = document.getElementById('containerSubJenis');
@@ -190,21 +216,35 @@
       }
     });
 
-    // LOGIKA KALKULASI REAL-TIME
+    // LOGIKA KALKULASI REAL-TIME TERBARU (DENGAN BREAKDOWN)
     function calculateRealTime() {
-      const val = parseFloat(inputNominal.value) || 0;
-      if (val === 0) {
-        priceHelper.innerText = `1 ETH ≈ Rp ${ethPriceInIdr.toLocaleString('id-ID')}`;
+      const val = parseFloat(inputNominal.value);
+
+      if (!val || val <= 0) {
+        priceHelper.innerText = '';
+        // Sembunyikan breakdown jika nominal kosong
+        document.getElementById('breakdownBox').classList.add('hidden');
         return;
       }
-      
+
+      // Hitung breakdown amil
+      const hakAmil       = val * 0.125;
+      const nominalBersih = val - hakAmil;
+
       if (currentCurrency === 'ETH') {
-        const idr = val * ethPriceInIdr;
-        priceHelper.innerText = `Setara: Rp ${idr.toLocaleString('id-ID')} (via CoinGecko)`;
+        priceHelper.innerText = `Setara: Rp ${(val * ethPriceInIdr).toLocaleString('id-ID')} (via CoinGecko)`;
+        document.getElementById('bd-total').innerText = val.toFixed(6) + ' ETH';
+        document.getElementById('bd-zis').innerText   = nominalBersih.toFixed(6) + ' ETH';
+        document.getElementById('bd-amil').innerText  = hakAmil.toFixed(6) + ' ETH';
       } else {
-        const eth = val / ethPriceInIdr;
-        priceHelper.innerText = `Setara: ${eth.toFixed(6)} ETH (via CoinGecko)`;
+        priceHelper.innerText = `Setara: ${(val / ethPriceInIdr).toFixed(6)} ETH (via CoinGecko)`;
+        document.getElementById('bd-total').innerText = 'Rp ' + val.toLocaleString('id-ID');
+        document.getElementById('bd-zis').innerText   = 'Rp ' + (val * 0.875).toLocaleString('id-ID');
+        document.getElementById('bd-amil').innerText  = 'Rp ' + (val * 0.125).toLocaleString('id-ID');
       }
+
+      // Tampilkan breakdown
+      document.getElementById('breakdownBox').classList.remove('hidden');
     }
 
     inputNominal.addEventListener('input', calculateRealTime);

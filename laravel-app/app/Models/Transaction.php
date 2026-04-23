@@ -13,6 +13,8 @@ class Transaction extends Model
         'user_id',
         'jenis_dana',
         'nominal',
+        'nominal_bersih', // ← BARU
+        'hak_amil',
         'tx_hash',
         'metadata' // ✅ Izinkan penyimpanan metadata
     ];

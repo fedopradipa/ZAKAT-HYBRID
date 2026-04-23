@@ -11,14 +11,11 @@ use Illuminate\Support\Facades\Log;
 
 class ZakatController extends Controller
 {
-    /**
-     * HALAMAN 1: Khusus menampilkan riwayat setoran saja
-     */
+    // TIDAK DIUBAH
     public function history(FifoService $fifo)
     {
         $transactions = Transaction::where('user_id', Auth::id())->latest()->get();
         
-        // Data ringkasan (Summary) tetap butuh FIFO
         $fifoAlokasi     = $fifo->calculateForUser(Auth::id());
         $totalSetor      = (float) $transactions->sum('nominal');
         $totalDialokasi  = array_sum(array_column($fifoAlokasi, 'total_kontribusi'));
@@ -29,9 +26,7 @@ class ZakatController extends Controller
         ));
     }
 
-    /**
-     * HALAMAN 2: Khusus menampilkan pelacakan FIFO & Bukti IPFS
-     */
+    // TIDAK DIUBAH
     public function tracking(FifoService $fifo)
     {
         $transactions = Transaction::where('user_id', Auth::id())->get();
@@ -47,7 +42,7 @@ class ZakatController extends Controller
     }
 
     /**
-     * Menyimpan transaksi pembayaran zakat (dengan JSON metadata)
+     * store() — DIUBAH: tambah hitung & simpan hak_amil & nominal_bersih
      */
     public function store(Request $request)
     {
@@ -62,6 +57,14 @@ class ZakatController extends Controller
         ]);
 
         try {
+            $nominal = (float) $request->nominal;
+
+            // Hitung pemisahan — sama persis dengan smart contract
+            // PORSI_AMIL = 125, DENOMINATOR = 1000 → 12.5%
+            $hakAmil       = $nominal * 125 / 1000;
+            $nominalBersih = $nominal - $hakAmil;
+
+            // TIDAK DIUBAH
             $metadataPembayar = [
                 'nama'  => $request->is_anonim ? 'Hamba Allah' : ($request->nama ?? 'Hamba Allah'),
                 'email' => $request->email ?? null,
@@ -69,11 +72,13 @@ class ZakatController extends Controller
             ];
 
             Transaction::create([
-                'user_id'    => Auth::id(),
-                'jenis_dana' => $request->jenis_dana,
-                'nominal'    => $request->nominal,
-                'tx_hash'    => $request->tx_hash,
-                'metadata'   => $metadataPembayar 
+                'user_id'        => Auth::id(),
+                'jenis_dana'     => $request->jenis_dana,
+                'nominal'        => $nominal,
+                'nominal_bersih' => $nominalBersih, // ← BARU
+                'hak_amil'       => $hakAmil,       // ← BARU
+                'tx_hash'        => $request->tx_hash,
+                'metadata'       => $metadataPembayar
             ]);
 
             return response()->json(['status' => 'success', 'message' => 'Data Zakat Berhasil Disimpan']);

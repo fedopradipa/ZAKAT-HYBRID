@@ -122,4 +122,129 @@ class PemerintahController extends Controller
             'dataMuzakki'
         ));
     }
+    /**
+ * Halaman Penyaluran ZIS-DSKL
+ */
+    public function penyaluranZisDskl(Request $request, EthPriceService $ethPriceService)
+    {
+        $tahun = $request->input('tahun', now()->year);
+
+        $ethPriceIdr = $ethPriceService->getEthToIdr();
+
+        // ── CARDS: Hitung jumlah program per status ────────────────────
+        $statusCounts = Distribution::whereYear('created_at', $tahun)
+            ->select('status', DB::raw('COUNT(*) as jumlah'))
+            ->groupBy('status')
+            ->pluck('jumlah', 'status');
+
+        $totalProgram        = $statusCounts->sum();
+        $belumCair           = $statusCounts->get('belum_cair', 0);
+        $prosesPelaksanaan   = $statusCounts->get('proses_pelaksanaan', 0);
+        $tidakTerlaksana     = $statusCounts->get('tidak_terlaksana', 0);
+        $belumDikonfirmasi   = $statusCounts->get('belum_dikonfirmasi', 0);
+        $telahTerkonfirmasi  = $statusCounts->get('telah_terkonfirmasi', 0);
+
+        // ── DONUT CHART: Rasio per status ──────────────────────────────
+        $donutLabels = [
+            'Belum Dicairkan',
+            'Proses Pelaksanaan',
+            'Tidak Terlaksana',
+            'Belum Dikonfirmasi',
+            'Telah Dikonfirmasi',
+        ];
+        $donutData = [
+            (int) $belumCair,
+            (int) $prosesPelaksanaan,
+            (int) $tidakTerlaksana,
+            (int) $belumDikonfirmasi,
+            (int) $telahTerkonfirmasi,
+        ];
+
+        // ── TABEL: 5 Program paling terakhir diubah ────────────────────
+        $programTerakhir = Distribution::whereYear('updated_at', $tahun)
+            ->orderBy('updated_at', 'desc')
+            ->take(5)
+            ->get()
+            ->map(function ($item) use ($ethPriceIdr) {
+                $item->dana_idr = floatval($item->dana_dibutuhkan) * $ethPriceIdr;
+                return $item;
+            });
+
+        // ── LINE CHART: Jumlah program per bulan per status ────────────
+        $lineRaw = Distribution::whereYear('created_at', $tahun)
+            ->select(
+                DB::raw('MONTH(created_at) as bulan'),
+                'status',
+                DB::raw('COUNT(*) as jumlah')
+            )
+            ->groupBy('bulan', 'status')
+            ->get();
+
+        $bulanLabel = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+
+        $lineData = [
+            'belum_cair'          => array_fill(0, 12, 0),
+            'proses_pelaksanaan'  => array_fill(0, 12, 0),
+            'tidak_terlaksana'    => array_fill(0, 12, 0),
+            'belum_dikonfirmasi'  => array_fill(0, 12, 0),
+            'telah_terkonfirmasi' => array_fill(0, 12, 0),
+        ];
+
+        foreach ($lineRaw as $row) {
+            $idx = $row->bulan - 1;
+            if (isset($lineData[$row->status])) {
+                $lineData[$row->status][$idx] = (int) $row->jumlah;
+            }
+        }
+
+        return view('dashboard.pemerintah.penyaluranZIS.index', compact(
+            'tahun',
+            'totalProgram',
+            'belumCair',
+            'prosesPelaksanaan',
+            'tidakTerlaksana',
+            'belumDikonfirmasi',
+            'telahTerkonfirmasi',
+            'donutLabels',
+            'donutData',
+            'programTerakhir',
+            'bulanLabel',
+            'lineData'
+        ));
+    }
+    /**
+ * Halaman Monitoring Program Penyaluran
+ */
+public function programPenyaluran(Request $request, EthPriceService $ethPriceService)
+{
+    $ethPriceIdr = $ethPriceService->getEthToIdr();
+    $filterStatus = $request->input('status', '');
+
+    $query = Distribution::with('mustahiks')
+        ->orderBy('updated_at', 'desc');
+
+    if ($filterStatus !== '') {
+        $query->where('status', $filterStatus);
+    }
+
+    $programs = $query->get()->map(function ($item) use ($ethPriceIdr) {
+        $item->dana_idr = floatval($item->dana_dibutuhkan) * $ethPriceIdr;
+        return $item;
+    });
+
+    $statusOptions = [
+        ''                    => 'Semua Status',
+        'belum_cair'          => 'Belum Dicairkan',
+        'proses_pelaksanaan'  => 'Proses Pelaksanaan',
+        'tidak_terlaksana'    => 'Tidak Terlaksana',
+        'belum_dikonfirmasi'  => 'Belum Dikonfirmasi',
+        'telah_terkonfirmasi' => 'Telah Terkonfirmasi',
+    ];
+
+    return view('dashboard.pemerintah.ProgramPenyaluran.index', compact(
+        'programs',
+        'filterStatus',
+        'statusOptions'
+    ));
+}
 }

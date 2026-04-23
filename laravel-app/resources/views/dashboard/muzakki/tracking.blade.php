@@ -167,9 +167,9 @@
       @empty
         <div class="bg-white rounded-3xl border-2 border-slate-200 p-16 text-center shadow-sm">
           <div class="text-6xl mb-4">🕒</div>
-          <h2 class="text-xl font-black text-slate-800 mb-2">Dana Sedang Dalam Antrian</h2>
+          <h2 class="text-xl font-black text-slate-800 mb-2">Dana Sedang Diproses</h2>
           <p class="text-slate-500 font-medium text-sm max-w-md mx-auto">
-            Sistem sedang mencarikan program penyaluran yang paling tepat untuk dana Anda menggunakan algoritma FIFO. Silakan cek kembali nanti.
+            Dana Anda telah kami terima dan sedang dalam tahap antrian untuk disalurkan kepada mereka yang berhak. Silakan cek kembali statusnya secara berkala.
           </p>
         </div>
       @endforelse

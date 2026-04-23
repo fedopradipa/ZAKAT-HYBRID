@@ -8,12 +8,8 @@ use App\Models\Distribution;
 
 class FifoService
 {
-    /**
-     * Hitung alokasi FIFO lengkap.
-     */
     public function calculate(): array
     {
-        // 1. Ambil semua deposit FIFO (paling lama = paling depan antrian)
         $deposits = Transaction::with('user')
             ->orderBy('created_at', 'asc')
             ->get()
@@ -21,27 +17,27 @@ class FifoService
                 return [
                     'transaction' => $tx,
                     'user'        => $tx->user,
-                    'sisa'        => (float) $tx->nominal,
+                    // ── DIUBAH: dari nominal → nominal_bersih ──────
+                    'sisa'        => (float) $tx->nominal_bersih,
                 ];
             })
             ->toArray();
 
-        // ✅ PERBAIKAN BUG: Ubah 'disetujui' menjadi 'telah_terkonfirmasi'
+        // TIDAK DIUBAH
         $pencairans = Distribution::where('status', 'telah_terkonfirmasi')
             ->orderBy('created_at', 'asc')
             ->get();
 
-        $hasil = [];
-        $pointer = 0; // index antrian deposit saat ini
+        $hasil   = [];
+        $pointer = 0;
 
         foreach ($pencairans as $program) {
-            $sisaProgram  = (float) $program->dana_dibutuhkan;
-            $allocations  = [];
+            $sisaProgram = (float) $program->dana_dibutuhkan;
+            $allocations = [];
 
-            // Potong antrian FIFO sampai nominal program terpenuhi
             while ($sisaProgram > 0 && $pointer < count($deposits)) {
-                $deposit     = &$deposits[$pointer];
-                $ambil       = min($deposit['sisa'], $sisaProgram);
+                $deposit = &$deposits[$pointer];
+                $ambil   = min($deposit['sisa'], $sisaProgram);
 
                 $allocations[] = [
                     'transaction' => $deposit['transaction'],
@@ -67,12 +63,10 @@ class FifoService
         return $hasil;
     }
 
-    /**
-     * Hitung sisa saldo antrian FIFO (belum dicairkan)
-     */
+    // TIDAK DIUBAH
     public function getSisaAntrian(): array
     {
-        $allFifo     = $this->calculate();
+        $allFifo      = $this->calculate();
         $totalDeposit = Transaction::with('user')
             ->orderBy('created_at', 'asc')
             ->get();
@@ -80,21 +74,23 @@ class FifoService
         $terpakai = [];
         foreach ($allFifo as $entry) {
             foreach ($entry['allocations'] as $alloc) {
-                $txId = $alloc['transaction']->id;
-                $terpakai[$txId] = ($terpakai[$txId] ?? 0) + $alloc['amount'];
+                $txId             = $alloc['transaction']->id;
+                $terpakai[$txId]  = ($terpakai[$txId] ?? 0) + $alloc['amount'];
             }
         }
 
         $antrian = [];
         foreach ($totalDeposit as $tx) {
-            $sisa = (float) $tx->nominal - ($terpakai[$tx->id] ?? 0);
+            // ── DIUBAH: basis sisa dari nominal_bersih ────────────
+            $sisa = (float) $tx->nominal_bersih - ($terpakai[$tx->id] ?? 0);
             if ($sisa > 0) {
                 $antrian[] = [
-                    'transaction' => $tx,
-                    'user'        => $tx->user,
-                    'nominal_awal'=> (float) $tx->nominal,
-                    'terpakai'    => $terpakai[$tx->id] ?? 0,
-                    'sisa'        => $sisa,
+                    'transaction'  => $tx,
+                    'user'         => $tx->user,
+                    // TIDAK DIUBAH — nominal_awal tetap tampilkan nominal asli
+                    'nominal_awal' => (float) $tx->nominal,
+                    'terpakai'     => $terpakai[$tx->id] ?? 0,
+                    'sisa'         => $sisa,
                 ];
             }
         }
@@ -102,13 +98,11 @@ class FifoService
         return $antrian;
     }
 
-    /**
-     * Hitung alokasi FIFO khusus untuk 1 user (Muzakki view)
-     */
+    // TIDAK DIUBAH
     public function calculateForUser(int $userId): array
     {
-        $allFifo     = $this->calculate();
-        $hasilUser   = [];
+        $allFifo   = $this->calculate();
+        $hasilUser = [];
 
         foreach ($allFifo as $entry) {
             $allocUser = array_filter(
@@ -118,8 +112,8 @@ class FifoService
 
             if (!empty($allocUser)) {
                 $hasilUser[] = [
-                    'program'     => $entry['program'],
-                    'allocations' => array_values($allocUser),
+                    'program'          => $entry['program'],
+                    'allocations'      => array_values($allocUser),
                     'total_kontribusi' => array_sum(array_column($allocUser, 'amount')),
                 ];
             }
@@ -128,9 +122,7 @@ class FifoService
         return $hasilUser;
     }
 
-    /**
-     * Hitung alokasi FIFO khusus untuk 1 program (Penyaluran view)
-     */
+    // TIDAK DIUBAH
     public function calculateForProgram(int $distributionId): array
     {
         $allFifo = $this->calculate();
@@ -144,16 +136,13 @@ class FifoService
         return [];
     }
 
-    /**
-     * Summary global untuk Pemerintah & Keuangan
-     */
     public function getSummary(): array
     {
-        $allFifo        = $this->calculate();
-        $totalDeposit   = (float) Transaction::sum('nominal');
-        // ✅ PERBAIKAN BUG: Ubah 'disetujui' menjadi 'telah_terkonfirmasi'
-        $totalCair      = (float) Distribution::where('status', 'telah_terkonfirmasi')->sum('dana_dibutuhkan');
-        $sisaAntrian    = $this->getSisaAntrian();
+        $allFifo      = $this->calculate();
+        // TIDAK DIUBAH
+        $totalDeposit = (float) Transaction::sum('nominal');
+        $totalCair    = (float) Distribution::where('status', 'telah_terkonfirmasi')->sum('dana_dibutuhkan');
+        $sisaAntrian  = $this->getSisaAntrian();
 
         return [
             'total_deposit'       => $totalDeposit,

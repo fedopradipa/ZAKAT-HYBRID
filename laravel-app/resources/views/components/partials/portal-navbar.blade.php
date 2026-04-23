@@ -7,8 +7,8 @@
         <span class="text-emerald-700 font-extrabold text-sm tracking-tighter mt-1">BAZNAS</span>
       </a>
       <div class="hidden md:flex items-center gap-6 text-slate-500 font-semibold text-xs">
-        <a href="/" class="hover:text-emerald-600 transition-colors">Home</a>
-        <a href="#" class="hover:text-emerald-600 transition-colors">Program</a>
+        <a href="/" class="{{ request()->is('/') ? 'text-emerald-600' : 'hover:text-emerald-600' }} transition-colors">Home</a>
+        <a href="{{ route('program.index') }}" class="{{ request()->routeIs('program.index') ? 'text-emerald-600' : 'hover:text-emerald-600' }} transition-colors">Program</a>
         <a href="#" class="hover:text-emerald-600 transition-colors">Informasi</a>
       </div>
     </div>

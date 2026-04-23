@@ -27,34 +27,21 @@
       <span class="text-sm font-semibold">Penyaluran ZIS-DSKL</span>
     </a>
 
-    <a href="{{ route('pemerintah.laporan_baznas') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('pemerintah.laporan_baznas') ? 'bg-emerald-600 text-white shadow-lg' : 'hover:bg-slate-800' }}">
+    <a href="{{ route('pemerintah.program_penyaluran') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('pemerintah.laporan_baznas') ? 'bg-emerald-600 text-white shadow-lg' : 'hover:bg-slate-800' }}">
       <span class="text-lg">📊</span>
       <span class="text-sm font-semibold">Laporan BAZNAS</span>
     </a>
     @endif
 
-    {{-- ========================================== --}}
     {{-- MENU KHUSUS: KEUANGAN --}}
-    {{-- ========================================== --}}
     @if(Auth::user()->role === 'keuangan')
     <p class="text-[10px] font-bold text-slate-500 uppercase px-4 mt-4 mb-2 tracking-widest">Finance Menu</p>
-
-    <a href="{{ route('keuangan.dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('keuangan.dashboard') ? 'bg-emerald-600 text-white shadow-lg' : 'hover:bg-slate-800' }}">
-      <span class="text-lg">📊</span>
-      <span class="text-sm font-semibold">Overview Saldo</span>
-    </a>
 
     <a href="{{ route('keuangan.pengajuan') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('keuangan.pengajuan*') || request()->routeIs('keuangan.review*') ? 'bg-emerald-600 text-white shadow-lg' : 'hover:bg-slate-800' }}">
       <span class="text-lg">⚖️</span>
       <span class="text-sm font-semibold">Persetujuan Program</span>
     </a>
-    
-    <a href="{{ route('keuangan.fifo') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all {{ request()->routeIs('keuangan.fifo') ? 'bg-emerald-600 text-white shadow-lg' : 'hover:bg-slate-800' }}">
-      <span class="text-lg">🔄</span>
-      <span class="text-sm font-semibold">Log FIFO</span>
-    </a>
     @endif
-
     {{-- ========================================== --}}
     {{-- MENU KHUSUS: PENYALURAN --}}
     {{-- ========================================== --}}
