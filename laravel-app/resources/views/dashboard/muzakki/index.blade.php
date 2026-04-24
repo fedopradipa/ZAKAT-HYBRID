@@ -20,8 +20,11 @@
   <div class="max-w-3xl mx-auto px-6 py-10">
     <div class="text-center mb-8">
       <div class="inline-flex items-center gap-1.5 text-[10px] font-bold text-amber-500 bg-white border border-amber-100 px-3 py-1 rounded-full mb-4 shadow-sm">
-        🔒 Aman & Transparan di Blockchain
-      </div>
+  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+  </svg>
+  Aman & Transparan di Blockchain
+</div>
       <h1 class="text-2xl font-extrabold text-slate-800">Tunaikan ZIS Anda dengan</h1>
       <h2 class="text-2xl font-extrabold text-emerald-500 mb-2">Aman dan Mudah</h2>
       <p class="text-xs text-slate-400 font-medium">Pembayaran tercatat permanen di Polygon Blockchain</p>
@@ -34,18 +37,30 @@
         <label class="block text-slate-700 font-semibold mb-3 text-sm">Pilih Jenis Dana</label>
           <div class="grid grid-cols-3 gap-3">
             <button type="button" class="type-btn active flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 transition-all hover:border-emerald-300" data-type="Zakat">
-              <span class="text-xl mb-1">🌙</span><span class="text-[10px] font-semibold">Zakat</span>
-            </button>
+  <svg class="w-5 h-5 mb-1 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+  </svg>
+  <span class="text-[10px] font-semibold">Zakat</span>
+</button>
             <button type="button" class="type-btn flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 transition-all hover:border-emerald-300" data-type="Infak">
-              <span class="text-xl mb-1">❤️</span><span class="text-[10px] font-semibold">Infak/Sedekah</span>
-            </button>
+  <svg class="w-5 h-5 mb-1 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+  </svg>
+  <span class="text-[10px] font-semibold">Infak/Sedekah</span>
+</button>
             <button type="button" class="type-btn flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 transition-all hover:border-emerald-300" data-type="DSKL">
-              <span class="text-xl mb-1">🤝</span><span class="text-[10px] font-semibold">DSKL</span>
-            </button>
+  <svg class="w-5 h-5 mb-1 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+  </svg>
+  <span class="text-[10px] font-semibold">DSKL</span>
+</button>
           </div>
         <div id="infoBox" class="mt-4 flex items-center gap-1.5 text-blue-500 text-[10px] font-medium bg-blue-50 w-max px-2 py-1 rounded">
-          <span>ℹ️</span> <span id="infoText">Kewajiban 2.5% dari harta</span>
-        </div>
+  <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+  </svg>
+  <span id="infoText">Kewajiban 2.5% dari harta</span>
+</div>
       </div>
 
       <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
@@ -131,10 +146,13 @@
             <span id="bd-amil" class="font-bold font-mono text-amber-600"></span>
           </div>
           <div class="border-t border-amber-200 pt-2 mt-1">
-            <p class="text-[10px] text-amber-600 font-semibold leading-relaxed">
-              ⚠️ Dana yang tersalurkan ke mustahik adalah <strong>87.5%</strong> dari nominal yang Anda bayarkan.
-              Sisanya 12.5% merupakan hak amil sesuai syariat Islam (QS. At-Taubah: 60).
-            </p>
+           <p class="text-[10px] text-amber-600 font-semibold leading-relaxed flex items-start gap-1">
+  <svg class="w-3 h-3 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+  </svg>
+  <span>Dana yang tersalurkan ke mustahik adalah <strong>87.5%</strong> dari nominal yang Anda bayarkan.
+  Sisanya 12.5% merupakan hak amil sesuai syariat Islam (QS. At-Taubah: 60).</span>
+</p>
           </div>
         </div>
       </div>

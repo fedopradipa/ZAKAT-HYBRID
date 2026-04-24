@@ -41,42 +41,78 @@
 
       {{-- Total Program --}}
       <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm text-center hover:border-slate-300 transition-colors">
-        <div class="text-2xl mb-1">📋</div>
+        <div class="flex justify-center mb-2">
+          <div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+            </svg>
+          </div>
+        </div>
         <p class="text-2xl font-black text-slate-800">{{ $totalProgram }}</p>
         <p class="text-[11px] text-slate-500 font-semibold mt-1">Total Program</p>
       </div>
 
       {{-- Belum Dicairkan --}}
       <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm text-center hover:border-blue-300 transition-colors">
-        <div class="text-2xl mb-1">💧</div>
+        <div class="flex justify-center mb-2">
+          <div class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
+            <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+        </div>
         <p class="text-2xl font-black text-blue-600">{{ $belumCair }}</p>
         <p class="text-[11px] text-slate-500 font-semibold mt-1">Belum Dicairkan</p>
       </div>
 
       {{-- Proses Pelaksanaan --}}
       <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm text-center hover:border-amber-300 transition-colors">
-        <div class="text-2xl mb-1">⚙️</div>
+        <div class="flex justify-center mb-2">
+          <div class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center">
+            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+          </div>
+        </div>
         <p class="text-2xl font-black text-amber-500">{{ $prosesPelaksanaan }}</p>
         <p class="text-[11px] text-slate-500 font-semibold mt-1">Proses Pelaksanaan</p>
       </div>
 
       {{-- Tidak Terlaksana --}}
       <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm text-center hover:border-red-300 transition-colors">
-        <div class="text-2xl mb-1">❌</div>
+        <div class="flex justify-center mb-2">
+          <div class="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center">
+            <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+        </div>
         <p class="text-2xl font-black text-red-500">{{ $tidakTerlaksana }}</p>
         <p class="text-[11px] text-slate-500 font-semibold mt-1">Tidak Terlaksana</p>
       </div>
 
       {{-- Belum Dikonfirmasi --}}
       <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm text-center hover:border-orange-300 transition-colors">
-        <div class="text-2xl mb-1">🕐</div>
+        <div class="flex justify-center mb-2">
+          <div class="w-9 h-9 rounded-lg bg-orange-50 flex items-center justify-center">
+            <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+          </div>
+        </div>
         <p class="text-2xl font-black text-orange-500">{{ $belumDikonfirmasi }}</p>
         <p class="text-[11px] text-slate-500 font-semibold mt-1">Belum Dikonfirmasi</p>
       </div>
 
       {{-- Telah Dikonfirmasi --}}
       <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm text-center hover:border-emerald-300 transition-colors">
-        <div class="text-2xl mb-1">✅</div>
+        <div class="flex justify-center mb-2">
+          <div class="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
+            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+        </div>
         <p class="text-2xl font-black text-emerald-600">{{ $telahTerkonfirmasi }}</p>
         <p class="text-[11px] text-slate-500 font-semibold mt-1">Telah Dikonfirmasi</p>
       </div>

@@ -162,11 +162,13 @@
                   {{ $dataMuzakki->firstItem() + $loop->index }}
                 </td>
                 <td class="px-6 py-4">
-                  <p class="font-bold text-slate-800 text-xs">{{ $tx->user->name ?? 'Hamba Allah' }}</p>
-                  <p class="font-mono text-[10px] text-slate-400 mt-0.5">
-                    {{ substr($tx->user->wallet_address ?? 'Anonim', 0, 10) }}...
-                  </p>
-                </td>
+  <p class="font-bold text-slate-800 text-xs capitalize">
+    {{ ucfirst($tx->user->role ?? 'muzakki') }}
+  </p>
+  <p class="font-mono text-[10px] text-slate-400 mt-0.5">
+    {{ substr($tx->user->wallet_address ?? '0x000000000000', 0, 6) }}...{{ substr($tx->user->wallet_address ?? '0000', -4) }}
+  </p>
+</td>
                 <td class="px-6 py-4">
                   <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
                     {{ $tx->jenis_dana }}
@@ -192,7 +194,14 @@
             @empty
               <tr>
                 <td colspan="6" class="px-6 py-16 text-center">
-                  <div class="text-4xl mb-3 opacity-50">📁</div>
+                  <td colspan="6" class="px-6 py-16 text-center">
+  <div class="mb-3 flex justify-center opacity-40">
+    <svg class="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+    </svg>
+  </div>
+  <p class="text-slate-500 font-bold text-sm">Belum ada data pengumpulan untuk tahun {{ $tahun }}.</p>
+</td>
                   <p class="text-slate-500 font-bold text-sm">Belum ada data pengumpulan untuk tahun {{ $tahun }}.</p>
                 </td>
               </tr>

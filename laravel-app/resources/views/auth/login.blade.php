@@ -20,13 +20,13 @@
       </div>
     </div>
 
-    <div class="relative flex justify-center">
-      <div class="w-full max-w-md bg-emerald-50 aspect-square rounded-full absolute -z-10 animate-pulse"></div>
+   <div class="relative flex justify-center">
+  <div class="w-full max-w-md bg-emerald-50 aspect-square rounded-full absolute -z-10 animate-pulse"></div>
 
-      <img src="https://img.freepik.com/free-vector/charity-concept-illustration_114360-5394.jpg"
-        alt="Zakat Illustration"
-        class="w-full max-w-lg drop-shadow-2xl rounded-[3rem]">
-    </div>
+  <img src="{{ asset('images/baznas_zakat_illustration.svg') }}" 
+       alt="BAZNAS Zakat Illustration" 
+       class="w-full max-w-lg drop-shadow-2xl">
+</div>
   </section>
 
   @push('scripts')

@@ -37,7 +37,11 @@
 
     {{-- ── INFO HAK AMIL ────────────────────────────────────────────── --}}
     <div class="fade-up bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 flex gap-4 items-start">
-      <div class="text-2xl mt-0.5">💡</div>
+      <div class="mt-0.5 shrink-0">
+  <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+  </svg>
+</div>
       <div>
         <p class="text-sm font-bold text-amber-800 mb-0.5">Tentang Potongan Hak Amil</p>
         <p class="text-xs text-amber-700 leading-relaxed">
@@ -55,7 +59,11 @@
       {{-- Total Dibayarkan --}}
       <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
         <div class="flex items-center gap-2 mb-3">
-          <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-base">💳</div>
+          <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+  <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+  </svg>
+</div>
           <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Dibayarkan</p>
         </div>
         <p class="text-xl font-black text-slate-900 font-mono leading-none">
@@ -81,7 +89,11 @@
       {{-- Sudah Tersalurkan --}}
       <div class="bg-white rounded-2xl border border-emerald-200 p-5 shadow-sm">
         <div class="flex items-center gap-2 mb-3">
-          <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-base">✅</div>
+          <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+  <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+  </svg>
+</div>
           <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Sudah Tersalurkan</p>
         </div>
         <p class="text-xl font-black text-emerald-600 font-mono leading-none">
@@ -98,7 +110,11 @@
       {{-- Menunggu Penyaluran --}}
       <div class="bg-white rounded-2xl border border-amber-200 p-5 shadow-sm">
         <div class="flex items-center gap-2 mb-3">
-          <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-base">⏳</div>
+          <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+  <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+  </svg>
+</div>
           <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Menunggu Penyaluran</p>
         </div>
         {{-- Sisa = nominal_bersih - dialokasi, bukan dari totalSetor --}}
@@ -227,7 +243,11 @@
             @empty
             <tr>
               <td colspan="6" class="px-6 py-16 text-center">
-                <div class="text-4xl mb-3 opacity-30">🧾</div>
+                <div class="mb-3 flex justify-center opacity-30">
+  <svg class="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+  </svg>
+</div>
                 <p class="text-slate-500 font-bold text-sm">Belum ada transaksi</p>
                 <p class="text-slate-400 text-xs mt-1">Transaksi Anda akan muncul di sini setelah pembayaran berhasil</p>
               </td>
