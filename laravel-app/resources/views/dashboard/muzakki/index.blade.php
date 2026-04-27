@@ -117,7 +117,6 @@
             </div>
             <div>
               <label class="block text-slate-600 font-medium mb-1 text-xs">Email</label>
-              {{-- PERBAIKAN LOGIKA EMAIL: Mencegah email dummy @zakat.local tampil di form --}}
               <input type="email" id="email" placeholder="email@contoh.com" value="{{ Auth::check() && !str_contains(Auth::user()->email, '@zakat.local') ? Auth::user()->email : '' }}" class="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500">
             </div>
           </div>
@@ -176,7 +175,6 @@
     let currentCurrency = "ETH";
     let ethPriceInIdr = 50000000;
 
-    // DATA MAPPING SUB-JENIS
     const subJenisDataMap = {
       'Zakat': { label: 'Sub Jenis Zakat', info: 'Kewajiban 2.5% dari harta', options: ['Zakat Maal', 'Zakat Penghasilan', 'Zakat Fitrah'] },
       'Infak': { label: '', info: 'Sedekah membersihkan jiwa', options: [] },
@@ -209,7 +207,6 @@
 
     updateFormDisplay('Zakat');
 
-    // Fetch Harga ETH
     fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=idr')
       .then(res => res.json())
       .then(data => {
@@ -218,7 +215,6 @@
       })
       .catch(err => console.log("Gagal memuat harga ETH terbaru."));
 
-    // LOGIKA CHECKBOX ANONIM (HAMBA ALLAH)
     const chkAnonim = document.getElementById('is_anonim');
     const inputNama = document.getElementById('nama');
     let namaAsli = inputNama.value;
@@ -234,18 +230,15 @@
       }
     });
 
-    // LOGIKA KALKULASI REAL-TIME TERBARU (DENGAN BREAKDOWN)
     function calculateRealTime() {
       const val = parseFloat(inputNominal.value);
 
       if (!val || val <= 0) {
         priceHelper.innerText = '';
-        // Sembunyikan breakdown jika nominal kosong
         document.getElementById('breakdownBox').classList.add('hidden');
         return;
       }
 
-      // Hitung breakdown amil
       const hakAmil       = val * 0.125;
       const nominalBersih = val - hakAmil;
 
@@ -261,7 +254,6 @@
         document.getElementById('bd-amil').innerText  = 'Rp ' + (val * 0.125).toLocaleString('id-ID');
       }
 
-      // Tampilkan breakdown
       document.getElementById('breakdownBox').classList.remove('hidden');
     }
 
@@ -303,7 +295,6 @@
       calculateRealTime();
     });
 
-    // Eksekusi Pembayaran
     document.getElementById('btnProceed').addEventListener('click', async (e) => {
       e.preventDefault();
       if (!window.ethereum) return alert("MetaMask tidak ditemukan!");
@@ -316,40 +307,35 @@
         finalEthValue = (parseFloat(rawNominal) / ethPriceInIdr).toString();
       }
 
-      // ✅ LOGIKA BARU: Silent Login - Menghubungkan sesi tanpa Redirect halaman!
+      let wallet = "";
       if (!isUserAuth) {
         try {
             if (typeof showGlobalLoader === 'function') showGlobalLoader("🦊", "Autentikasi Aman", "Menyiapkan sesi pembayaran Anda...");
-
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
-            const wallet = await signer.getAddress();
+            wallet = await signer.getAddress();
 
-            // Lakukan login ke backend secara diam-diam
             const loginRes = await fetch("{{ route('login.wallet') }}", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
-                body: JSON.stringify({
-                    wallet_address: wallet,
-                    role: 'muzakki' // Default otomatis untuk pembayar
-                })
+                body: JSON.stringify({ wallet_address: wallet, role: 'muzakki' })
             });
 
             const loginData = await loginRes.json();
-            if (loginData.status !== 'success') {
-                throw new Error(loginData.message || "Gagal membuat sesi login.");
-            }
-            
-            // Sesi sukses dibuat! Kita lanjutkan tanpa me-refresh halaman.
+            if (loginData.status !== 'success') throw new Error(loginData.message);
             isUserAuth = true; 
         } catch (error) {
             console.error(error);
             if (document.getElementById('loader')) document.getElementById('loader').classList.add('hidden');
             return alert("Gagal melakukan autentikasi: " + error.message);
         }
+      } else {
+         const provider = new ethers.BrowserProvider(window.ethereum);
+         const signer = await provider.getSigner();
+         wallet = await signer.getAddress();
       }
 
       try {
@@ -362,49 +348,68 @@
         const selectedSub = selectSubJenis.value || "";
         const fullType = selectedSub ? `${zakatType} - ${selectedSub}` : zakatType;
 
+        // 1. Tembak transaksi ke Blockchain
         const tx = await contract.bayarZIS(fullType, {
           value: ethers.parseEther(finalEthValue.toString())
         });
 
-        if (typeof showGlobalLoader === 'function') showGlobalLoader("🔄", "Memproses", "Menunggu konfirmasi blockchain...");
-        await tx.wait();
-
-        if (typeof showGlobalLoader === 'function') showGlobalLoader("💾", "Menyimpan", "Mencatat transaksi ke sistem...");
-
-        // Kirim data ke Controller (dengan || null agar validation nullable laravel lolos)
-        const response = await fetch("{{ route('muzakki.transaction.store') }}", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-          },
-          body: JSON.stringify({
-            jenis_dana: fullType,
-            nominal: finalEthValue,
-            tx_hash: tx.hash,
-            nama: inputNama.value || null,
-            email: document.getElementById('email').value || null,
-            is_anonim: chkAnonim.checked
-          })
-        });
-
-        const data = await response.json();
-
-        // Pengecekan Error API (Mencegah Silent Failure)
-        if (!response.ok || data.status !== 'success') {
-           throw new Error(data.message || "Gagal menyimpan data ke database server.");
+        if (typeof showGlobalLoader === 'function') showGlobalLoader("🔄", "Memproses Blok", "Menunggu konfirmasi jaringan Blockchain...");
+        
+        // ⭐ KUNCI METADATA: Kirim data profil Web2 ke Laravel segera setelah dapat Hash (Draft Mode)
+        // Data ini ditandai sebagai `is_verified = false`. Nanti Webhook dari Node.js yang akan mengubahnya jadi `true`.
+        try {
+           await fetch("{{ route('muzakki.transaction.store') }}", {
+             method: "POST",
+             headers: {
+               "Content-Type": "application/json",
+               "Accept": "application/json",
+               "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+             },
+             body: JSON.stringify({
+               wallet_address: wallet,
+               jenis_dana: fullType,
+               nominal: finalEthValue,
+               tx_hash: tx.hash,
+               nama: inputNama.value || null,
+               email: document.getElementById('email').value || null,
+               is_anonim: chkAnonim.checked
+             })
+           });
+        } catch(metadataErr) {
+           console.error("Gagal menyematkan metadata profil:", metadataErr);
         }
 
-        alert("Alhamdulillah, Pembayaran berhasil dan tercatat!");
-        
-        // Redirect difokuskan ke Dashboard yang biasanya menampung History
+        // 2. Tunggu sampai transaksi benar-benar masuk blok (Mined)
+        await tx.wait();
+
+        if (typeof showGlobalLoader === 'function') showGlobalLoader("💾", "Sinkronisasi", "Transaksi sukses! Sedang memproses ke sistem BAZNAS...");
+
+        // 3. SMART POLLING (DI-PERCEPAT KE 200ms)
+        let isSaved = false;
+        for (let i = 0; i < 50; i++) { // Coba 50 kali * 200ms = Max 10 Detik
+            try {
+                const checkUrl = `{{ url('/api/zakat/check') }}/${tx.hash}`;
+                const checkRes = await fetch(checkUrl);
+                const checkData = await checkRes.json();
+                
+                // Pastikan Webhook sudah merubah status Draft menjadi Verified (exists = true)
+                if (checkData.exists) {
+                    isSaved = true;
+                    break;
+                }
+            } catch (e) {
+                console.error("Polling error:", e);
+            }
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
+
+        alert("Alhamdulillah, Pembayaran berhasil diverifikasi oleh Blockchain dan tersimpan di sistem!");
         window.location.href = "{{ route('muzakki.dashboard') }}";
 
       } catch (error) {
         console.error(error);
         if (document.getElementById('loader')) document.getElementById('loader').classList.add('hidden');
-        alert("Terjadi kesalahan: " + error.message);
+        alert("Terjadi kesalahan atau transaksi dibatalkan: " + error.message);
       }
     });
   </script>

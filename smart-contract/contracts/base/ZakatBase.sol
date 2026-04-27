@@ -2,23 +2,35 @@
 pragma solidity ^0.8.24;
 
 abstract contract ZakatBase {
-    // --- State Variables (TIDAK DIUBAH) ---
+    // --- State Variables ---
     address public adminKeuangan;
     address public akunPemerintah;
     address public akunPenyaluran;
     address payable public dompetPenyaluran;
     bool public sistemAktif = true;
 
-    // ── BARU: Pemisahan saldo ──────────────────────────────────────
-    uint256 public saldoZIS;   // 87.5% dari setiap deposit
-    uint256 public saldoAmil;  // 12.5% dari setiap deposit (ditampung)
+    // --- Pemisahan saldo ---
+    uint256 public saldoZIS;   
+    uint256 public saldoAmil;  
 
-    // Konstanta: 125/1000 = 12.5%
     uint256 public constant PORSI_AMIL  = 125;
     uint256 public constant DENOMINATOR = 1000;
 
+    // ====================================================================
+    // ⭐ FULL WEB3: STATE MACHINE UNTUK PENYALURAN
+    // ====================================================================
+    enum StatusProgram { BelumCair, ProsesPelaksanaan, TelahTerkonfirmasi }
+
+    struct DetailPenyaluran {
+        uint256 nominal;
+        string proposalIpfsHash; 
+        string buktiIpfsHash;    
+        StatusProgram status;    
+    }
+
+    mapping(uint256 => DetailPenyaluran) public dataPenyaluran;
+
     // --- Events ---
-    // DepositZIS: tambah 2 parameter baru (nominalBersih & hakAmil)
     event DepositZIS(
         address indexed muzakki,
         uint256 nominalTotal,
@@ -28,29 +40,28 @@ abstract contract ZakatBase {
         uint256 timestamp
     );
 
-    // PencairanDana: TIDAK DIUBAH
+    // ⭐ EVENT DIUBAH: Tambah programId dan proposalHash
     event PencairanDana(
         address indexed admin,
+        uint256 indexed programId, 
         uint256 nominal,
         address tujuan,
+        string proposalHash,
         uint256 timestamp
     );
 
-    // UpdateDompetPenyaluran: TIDAK DIUBAH
-    event UpdateDompetPenyaluran(
-        address indexed dompetLama,
-        address indexed dompetBaru,
+    // ⭐ EVENT BARU
+    event KonfirmasiPenyaluranEvent(
+        address indexed amil,
+        uint256 indexed programId,
+        string buktiHash,
         uint256 timestamp
     );
 
-    // UpdateAkunPenyaluran: TIDAK DIUBAH
-    event UpdateAkunPenyaluran(
-        address indexed akunLama,
-        address indexed akunBaru,
-        uint256 timestamp
-    );
+    event UpdateDompetPenyaluran(address indexed dompetLama, address indexed dompetBaru, uint256 timestamp);
+    event UpdateAkunPenyaluran(address indexed akunLama, address indexed akunBaru, uint256 timestamp);
 
-    // --- Modifiers (TIDAK DIUBAH) ---
+    // --- Modifiers ---
     modifier hanyaKeuangan() {
         require(msg.sender == adminKeuangan, "Akses Ditolak: Hanya Keuangan!");
         _;
@@ -58,6 +69,11 @@ abstract contract ZakatBase {
 
     modifier hanyaPemerintah() {
         require(msg.sender == akunPemerintah, "Akses Ditolak: Hanya Pemerintah!");
+        _;
+    }
+
+    modifier hanyaPenyaluran() {
+        require(msg.sender == akunPenyaluran, "Akses Ditolak: Hanya Tim Penyaluran!");
         _;
     }
 

@@ -178,7 +178,9 @@
   @push('scripts')
   <script>
     const CONTRACT_ADDRESS_GLOBAL = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-    const ABI_KEUANGAN = ["function cairkanDana(uint256 _nominal) public"];
+    
+    // ABI: 3 Parameter (Nominal, ID, IPFS Hash)
+    const ABI_KEUANGAN = ["function cairkanDana(uint256 _nominal, uint256 _programId, string _proposalHash) public"];
 
     document.getElementById('btnCairkan').addEventListener('click', async (e) => {
       e.preventDefault();
@@ -196,8 +198,39 @@
       try {
         btn.classList.add('opacity-75', 'cursor-not-allowed');
         btn.classList.remove('hover:bg-[#4a6f05]', 'active:scale-95');
+        
+        // =================================================================
+        // LANGKAH 1: ENKRIPSI & UPLOAD KE IPFS (Panggil Laravel API)
+        // =================================================================
+        btnText.innerText = "Mengepak Data ke IPFS...";
+        btnIcon.innerText = "📦";
+
+        // ⭐ PERBAIKAN URL: Menghilangkan '/admin' agar sesuai persis dengan web.php
+        const prepareUrl = `{{ url('/keuangan/pengajuan') }}/${programId}/prepare-web3`;
+        
+        const prepareRes = await fetch(prepareUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                "Accept": "application/json"
+            }
+        });
+
+        const prepareData = await prepareRes.json();
+        
+        if (prepareData.status !== 'success') {
+            throw new Error(prepareData.message || "Gagal mengunggah dokumen ke IPFS");
+        }
+
+        const ipfsHash = prepareData.ipfs_hash;
+        console.log("✅ Berhasil Upload IPFS. Hash:", ipfsHash);
+
+        // =================================================================
+        // LANGKAH 2: EKSEKUSI SMART CONTRACT VIA METAMASK
+        // =================================================================
         btnText.innerText = "Menunggu MetaMask...";
-        btnIcon.innerText = "⏳";
+        btnIcon.innerText = "🦊";
 
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
@@ -205,13 +238,23 @@
         const nominalWei = ethers.parseEther(nominalEth.toString());
 
         btnText.innerText = "Memproses Transaksi...";
-        const tx = await contract.cairkanDana(nominalWei);
+        btnIcon.innerText = "⏳";
+
+        const tx = await contract.cairkanDana(nominalWei, programId, ipfsHash);
 
         btnText.innerText = "Validasi Blockchain...";
         await tx.wait();
+        console.log("✅ Transaksi Blockchain Sukses. TxHash:", tx.hash);
 
-        btnText.innerText = "Sinkronisasi Data...";
-        const response = await fetch(`/keuangan/pengajuan/${programId}/approve`, {
+        // =================================================================
+        // LANGKAH 3: SINKRONISASI DATABASE MYSQL
+        // =================================================================
+        btnText.innerText = "Sinkronisasi Database...";
+        
+        // ⭐ PERBAIKAN URL: Sama, menyesuaikan route
+        const approveUrl = `{{ url('/keuangan/pengajuan') }}/${programId}/approve`;
+        
+        const response = await fetch(approveUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -219,7 +262,8 @@
             "Accept": "application/json"
           },
           body: JSON.stringify({
-            tx_hash: tx.hash
+            tx_hash: tx.hash,
+            proposal_ipfs_hash: ipfsHash 
           })
         });
 
@@ -229,7 +273,7 @@
           btnIcon.innerText = "✅";
           btnText.innerText = "Dana Berhasil Dicairkan!";
           btn.classList.replace('bg-[#5c8a06]', 'bg-emerald-600');
-          alert("Alhamdulillah, transaksi sukses!\nTx Hash: " + tx.hash);
+          alert("Alhamdulillah, transaksi dan penguncian data berhasil!\nIPFS Hash: " + ipfsHash + "\nTx Hash: " + tx.hash);
           window.location.href = "{{ route('keuangan.pengajuan') }}";
         } else {
           throw new Error("Gagal mengupdate database.");
@@ -243,13 +287,15 @@
         btnIcon.innerText = "💎";
 
         if (error.code === "ACTION_REJECTED") {
-          alert("❌ Transaksi dibatalkan oleh Anda.");
-        } else if (error.message.includes("Saldo tidak cukup")) {
-          alert("❌ Saldo Brankas Zakat tidak mencukupi.");
-        } else if (error.message.includes("Hanya Keuangan")) {
+          alert("❌ Transaksi dibatalkan oleh Anda (MetaMask).");
+        } else if (error.message && error.message.includes("Saldo ZIS tidak cukup")) {
+          alert("❌ Saldo ZIS Blockchain tidak mencukupi.");
+        } else if (error.message && error.message.includes("Hanya Keuangan")) {
           alert("❌ Dompet Anda tidak terdaftar sebagai Admin Keuangan.");
+        } else if (error.message && error.message.includes("pernah dicairkan")) {
+          alert("❌ Dana untuk program ini sudah pernah dicairkan di Blockchain.");
         } else {
-          alert("❌ Error: " + (error.reason || error.message));
+          alert("❌ Error: " + (error.reason || error.message || "Terjadi kesalahan sistem."));
         }
       }
     });

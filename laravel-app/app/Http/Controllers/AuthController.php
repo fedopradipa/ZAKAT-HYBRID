@@ -1,12 +1,10 @@
 <?php
-// app/Http/Controllers/AuthController.php
 
 namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
@@ -31,26 +29,23 @@ class AuthController extends Controller
         ]);
 
         $wallet = strtolower($request->wallet_address);
-        $role   = $request->role; // Sudah dideteksi on-chain di frontend
+        $role   = $request->role; 
 
         try {
-            // ✅ firstOrCreate: buat user baru jika belum ada
-            // TIDAK overwrite role jika user sudah ada di DB
+            // Cukup daftarkan / ambil data User berdasarkan Wallet
             $user = User::firstOrCreate(
                 ['wallet_address' => $wallet],
                 [
-                    'name'     => 'Hamba Allah',
-                    'email'    => $wallet . '@zakat.local',
-                    'password' => Hash::make('web3_secret_static_pass'),
-                    'role'     => $role,
+                    'name' => 'Hamba Allah',
+                    'role' => $role,
                 ]
             );
 
-            // ✅ Jika user sudah ada tapi rolenya beda (misal data lama salah),
-            // update role sesuai yang dari blockchain
             if ($user->role !== $role) {
                 $user->update(['role' => $role]);
             }
+
+            // (Kode Auto-Claim user_id TELAH DIHAPUS karena kita murni pakai wallet_address)
 
             Auth::login($user);
             $request->session()->regenerate();
@@ -67,6 +62,7 @@ class AuthController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            // Tangkap dan catat error aslinya di file log jika masih ada masalah
             Log::error('Web3 Login Error: ' . $e->getMessage());
             return response()->json([
                 'status'  => 'error',

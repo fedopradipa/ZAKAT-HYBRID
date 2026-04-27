@@ -53,6 +53,38 @@ class PinataService
   }
 
   /**
+   * ⭐ BARU: Upload Data Array (JSON) ke IPFS via Pinata
+   * Digunakan untuk mengepak data Proposal & Mustahik (Terenkripsi)
+   */
+  public function uploadJson(array $data, string $fileName): array
+  {
+    $response = Http::withHeaders([
+      'pinata_api_key'        => $this->apiKey,
+      'pinata_secret_api_key' => $this->secretKey,
+      'Content-Type'          => 'application/json',
+    ])->post('https://api.pinata.cloud/pinning/pinJSONToIPFS', [
+      'pinataContent'  => $data,
+      'pinataMetadata' => [
+        'name' => $fileName . '_' . now()->timestamp,
+      ],
+      'pinataOptions'  => [
+        'cidVersion' => 1,
+      ],
+    ]);
+
+    if ($response->failed()) {
+      throw new \Exception('Gagal upload JSON ke IPFS: ' . $response->body());
+    }
+
+    $ipfsHash = $response->json('IpfsHash');
+
+    return [
+      'ipfs_hash' => $ipfsHash,
+      'url'       => $this->gateway . '/' . $ipfsHash,
+    ];
+  }
+
+  /**
    * Buat URL publik dari hash IPFS
    */
   public function getUrl(string $ipfsHash): string

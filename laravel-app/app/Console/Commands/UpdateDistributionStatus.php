@@ -11,53 +11,39 @@ use Illuminate\Support\Facades\DB;
 class UpdateDistributionStatus extends Command
 {
     protected $signature   = 'penyaluran:update-status';
-    protected $description = 'Cek tanggal pelaksanaan program dan update status secara otomatis (Cron Job)';
+    protected $description = 'Cek program yang kadaluarsa (belum cair & lewat tanggal) dan update ke MySQL';
 
     public function handle()
     {
-        $this->info('Memulai pengecekan status program...');
+        $this->info('Memulai pengecekan program kadaluarsa...');
 
-        $today        = Carbon::today();
+        // ⭐ KUNCI MASALAH: Set Zona Waktu ke WIB!
+        // Jika tidak, jam 00:00 - 06:59 pagi Laravel masih mengira hari kemarin (UTC)
+        $today = Carbon::now('Asia/Jakarta')->startOfDay();
+        
         $updatedCount = 0;
 
         try {
             DB::beginTransaction();
 
-            // -----------------------------------------------------------------
-            // KONDISI 1: belum_cair + lewat tanggal → tidak_terlaksana
-            // Dana belum dicairkan sama sekali, program hangus
-            // TODO: Tambahkan Web3 REFUND ke brankas kontrak di sini
-            // -----------------------------------------------------------------
+            // KONDISI: belum_cair + tanggal pelaksanaan sudah lewat dari $today
             $expiredBelumCair = Distribution::where('status', 'belum_cair')
                 ->whereDate('tanggal_pelaksanaan', '<', $today)
                 ->get();
 
             foreach ($expiredBelumCair as $program) {
+                // UPDATE PERMANEN KE MYSQL
                 $program->update(['status' => 'tidak_terlaksana']);
-                $this->warn("Program ID #{$program->id} ('{$program->judul}') → TIDAK TERLAKSANA.");
-                $updatedCount++;
-            }
-
-            // -----------------------------------------------------------------
-            // KONDISI 2: proses_pelaksanaan + lewat tanggal → belum_dikonfirmasi
-            // Dana sudah cair ke dompet penyaluran, tapi belum ada bukti foto
-            // -----------------------------------------------------------------
-            $expiredProses = Distribution::where('status', 'proses_pelaksanaan')
-                ->whereDate('tanggal_pelaksanaan', '<', $today)
-                ->get();
-
-            foreach ($expiredProses as $program) {
-                $program->update(['status' => 'belum_dikonfirmasi']);
-                $this->info("Program ID #{$program->id} ('{$program->judul}') → BELUM DIKONFIRMASI.");
+                $this->warn("Program ID #{$program->id} ('{$program->judul}') → KADALUARSA / BATAL.");
                 $updatedCount++;
             }
 
             DB::commit();
 
             if ($updatedCount > 0) {
-                $this->info("Selesai! Berhasil mengupdate {$updatedCount} program.");
+                $this->info("Selesai! Berhasil membatalkan {$updatedCount} program secara permanen di MySQL.");
             } else {
-                $this->line("Tidak ada program yang melewati batas waktu hari ini.");
+                $this->line("Tidak ada program yang kadaluarsa hari ini.");
             }
 
         } catch (\Exception $e) {

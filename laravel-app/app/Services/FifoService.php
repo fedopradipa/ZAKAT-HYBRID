@@ -1,5 +1,4 @@
 <?php
-// app/Services/FifoService.php
 
 namespace App\Services;
 
@@ -10,20 +9,21 @@ class FifoService
 {
     public function calculate(): array
     {
+        // Hanya proses transaksi yang sudah dikonfirmasi oleh listener
+        // is_verified = true berarti data 100% berasal dari blockchain event
         $deposits = Transaction::with('user')
+            ->where('is_verified', true)
             ->orderBy('created_at', 'asc')
             ->get()
             ->map(function ($tx) {
                 return [
                     'transaction' => $tx,
                     'user'        => $tx->user,
-                    // ── DIUBAH: dari nominal → nominal_bersih ──────
                     'sisa'        => (float) $tx->nominal_bersih,
                 ];
             })
             ->toArray();
 
-        // TIDAK DIUBAH
         $pencairans = Distribution::where('status', 'telah_terkonfirmasi')
             ->orderBy('created_at', 'asc')
             ->get();
@@ -63,31 +63,29 @@ class FifoService
         return $hasil;
     }
 
-    // TIDAK DIUBAH
     public function getSisaAntrian(): array
     {
         $allFifo      = $this->calculate();
         $totalDeposit = Transaction::with('user')
+            ->where('is_verified', true)
             ->orderBy('created_at', 'asc')
             ->get();
 
         $terpakai = [];
         foreach ($allFifo as $entry) {
             foreach ($entry['allocations'] as $alloc) {
-                $txId             = $alloc['transaction']->id;
-                $terpakai[$txId]  = ($terpakai[$txId] ?? 0) + $alloc['amount'];
+                $txId            = $alloc['transaction']->id;
+                $terpakai[$txId] = ($terpakai[$txId] ?? 0) + $alloc['amount'];
             }
         }
 
         $antrian = [];
         foreach ($totalDeposit as $tx) {
-            // ── DIUBAH: basis sisa dari nominal_bersih ────────────
             $sisa = (float) $tx->nominal_bersih - ($terpakai[$tx->id] ?? 0);
             if ($sisa > 0) {
                 $antrian[] = [
                     'transaction'  => $tx,
                     'user'         => $tx->user,
-                    // TIDAK DIUBAH — nominal_awal tetap tampilkan nominal asli
                     'nominal_awal' => (float) $tx->nominal,
                     'terpakai'     => $terpakai[$tx->id] ?? 0,
                     'sisa'         => $sisa,
@@ -98,16 +96,18 @@ class FifoService
         return $antrian;
     }
 
-    // TIDAK DIUBAH
-    public function calculateForUser(int $userId): array
+    // ⭐ DIPERBAIKI: Menggunakan string $walletAddress untuk Web3
+    public function calculateForUser(string $walletAddress): array
     {
         $allFifo   = $this->calculate();
         $hasilUser = [];
+        $targetWallet = strtolower($walletAddress);
 
         foreach ($allFifo as $entry) {
             $allocUser = array_filter(
                 $entry['allocations'],
-                fn($a) => $a['user']?->id === $userId
+                // Cocokkan berdasarkan wallet_address dari data transaksi
+                fn($a) => strtolower($a['transaction']->wallet_address) === $targetWallet
             );
 
             if (!empty($allocUser)) {
@@ -122,7 +122,6 @@ class FifoService
         return $hasilUser;
     }
 
-    // TIDAK DIUBAH
     public function calculateForProgram(int $distributionId): array
     {
         $allFifo = $this->calculate();
@@ -139,8 +138,7 @@ class FifoService
     public function getSummary(): array
     {
         $allFifo      = $this->calculate();
-        // TIDAK DIUBAH
-        $totalDeposit = (float) Transaction::sum('nominal');
+        $totalDeposit = (float) Transaction::where('is_verified', true)->sum('nominal');
         $totalCair    = (float) Distribution::where('status', 'telah_terkonfirmasi')->sum('dana_dibutuhkan');
         $sisaAntrian  = $this->getSisaAntrian();
 

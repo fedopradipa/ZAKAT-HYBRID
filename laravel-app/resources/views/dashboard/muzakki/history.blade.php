@@ -221,7 +221,14 @@
 
               {{-- Status --}}
               <td class="px-5 py-4 text-center">
-                @if($sisa <= 0)
+                @if(!$tx->is_verified)
+                  {{-- Draft: belum dikonfirmasi blockchain, nominal_bersih masih 0 --}}
+                  <span class="status-pill bg-slate-100 text-slate-500 border border-slate-200">
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse inline-block"></span>
+                    Menunggu
+                  </span>
+                @elseif($sisa <= 0 && $tx->nominal_bersih > 0)
+                  {{-- Sudah verified DAN nominal_bersih sudah terpakai semua --}}
                   <span class="status-pill bg-emerald-100 text-emerald-700 border border-emerald-200">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
                     Tersalurkan

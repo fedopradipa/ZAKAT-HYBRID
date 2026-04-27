@@ -55,6 +55,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/tracking', [ZakatController::class, 'tracking'])->name('tracking'); 
         
         Route::post('/transaction/store', [ZakatController::class, 'store'])->name('transaction.store');
+
+        
     });
 
     /**
@@ -68,8 +70,12 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/pengajuan', [KeuanganController::class, 'pengajuan'])->name('pengajuan');
         Route::get('/pengajuan/{id}/review', [KeuanganController::class, 'review'])->name('review');
+        
+        // ⭐ RUTE FULL WEB3 (DITAMBAHKAN DI SINI)
+        Route::post('/pengajuan/{id}/prepare-web3', [KeuanganController::class, 'prepareWeb3'])->name('prepare_web3');
         Route::post('/pengajuan/{id}/approve', [KeuanganController::class, 'approve'])->name('approve');
     });
+
     /**
      * ROLE: PENYALURAN
      */
@@ -79,10 +85,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/program/konfirmasi', [PenyaluranController::class, 'konfirmasi'])->name('konfirmasi');
         Route::get('/program/{id}/upload-bukti', [PenyaluranController::class, 'showKonfirmasi'])->name('upload.bukti');
         Route::post('/program/{id}/upload-bukti', [PenyaluranController::class, 'uploadBukti'])->name('upload.bukti.store');
+        
+        // ⭐ RUTE FULL WEB3 UNTUK BUKTI PENYALURAN
+        Route::post('/program/{id}/prepare-bukti', [PenyaluranController::class, 'prepareBuktiWeb3'])->name('prepare_bukti');
+        Route::post('/program/{id}/submit-konfirmasi', [PenyaluranController::class, 'submitKonfirmasi'])->name('submit_konfirmasi');
+
         Route::get('/program/{id}/fifo', [PenyaluranController::class, 'fifoProgram'])->name('fifo.program');
     });
 
-      /**
+    /**
      * ROLE: PEMERINTAH
      */
     Route::middleware(['role:pemerintah'])->prefix('pemerintah')->name('pemerintah.')->group(function () {

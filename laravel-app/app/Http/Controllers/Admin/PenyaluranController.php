@@ -19,7 +19,6 @@ class PenyaluranController extends Controller
     {
         $totalTerkumpul  = Transaction::sum('nominal');
 
-        // ✅ Status baru: proses_pelaksanaan, belum_dikonfirmasi, telah_terkonfirmasi
         $totalDisalurkan = Distribution::whereIn('status', [
             'proses_pelaksanaan',
             'belum_dikonfirmasi',
@@ -107,51 +106,67 @@ class PenyaluranController extends Controller
     {
         $program = Distribution::with('mustahiks')->findOrFail($id);
 
-        // ✅ Hanya bisa upload jika sudah proses_pelaksanaan atau belum_dikonfirmasi
         if (!in_array($program->status, ['proses_pelaksanaan', 'belum_dikonfirmasi'])) {
             return redirect()->route('penyaluran.konfirmasi')
                 ->with('error', 'Program tidak dapat dikonfirmasi saat ini.');
         }
 
-        // ✅ Jika sudah dikonfirmasi
-        if ($program->status === 'telah_terkonfirmasi') {
-            return redirect()->route('penyaluran.konfirmasi')
-                ->with('error', 'Program sudah dikonfirmasi sebelumnya.');
-        }
-
         return view('dashboard.penyaluran.upload-bukti', compact('program'));
     }
 
-    public function uploadBukti(Request $request, $id, PinataService $pinata)
+    // ====================================================================
+    // ⭐ FULL WEB3: 1. Upload Foto ke IPFS DULU (Dipanggil via AJAX)
+    // ====================================================================
+    public function prepareBuktiWeb3(Request $request, $id, PinataService $pinata)
     {
         $request->validate([
             'foto_bukti'   => 'required|array|min:1',
             'foto_bukti.*' => 'required|image|mimes:jpeg,jpg,png,webp|max:5120',
-            'catatan'      => 'nullable|string|max:500',
+        ]);
+
+        $program = Distribution::findOrFail($id);
+        $hashes = [];
+
+        try {
+            foreach ($request->file('foto_bukti') as $file) {
+                $result   = $pinata->uploadFile($file, "Bukti_ID_" . $program->id);
+                $hashes[] = $result['ipfs_hash'];
+            }
+
+            // Kembalikan Array JSON berisi hash foto-foto ke Frontend
+            return response()->json([
+                'status'          => 'success',
+                'bukti_ipfs_hash' => json_encode($hashes), // Array string QmFoto...
+                'program_id'      => $program->id
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    // ====================================================================
+    // ⭐ FULL WEB3: 2. Simpan Bukti setelah MetaMask Sukses (AJAX)
+    // ====================================================================
+    public function submitKonfirmasi(Request $request, $id)
+    {
+        $request->validate([
+            'tx_hash'         => 'required|string', // Transaksi bayar Gas Fee
+            'bukti_ipfs_hash' => 'required|string', // Resi foto
         ]);
 
         $program = Distribution::findOrFail($id);
 
-        try {
-            $hashes = [];
+        // Ubah status dan simpan bukti
+        $program->update([
+            'bukti_ipfs_hash' => $request->bukti_ipfs_hash,
+            'status'          => 'telah_terkonfirmasi',
+        ]);
 
-            foreach ($request->file('foto_bukti') as $file) {
-                $result   = $pinata->uploadFile($file, $program->judul);
-                $hashes[] = $result['ipfs_hash'];
-            }
-
-            // ✅ Update status ke telah_terkonfirmasi, hapus konfirmasi_status
-            $program->update([
-                'ipfs_hash' => json_encode($hashes),
-                'status'    => 'telah_terkonfirmasi',
-            ]);
-
-            return redirect()->route('penyaluran.konfirmasi')
-                ->with('success', count($hashes) . ' foto berhasil diupload ke IPFS!');
-
-        } catch (\Exception $e) {
-            return back()->with('error', 'Gagal upload: ' . $e->getMessage());
-        }
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Bukti Penyaluran berhasil dikunci ke dalam Blockchain!',
+        ]);
     }
 
     public function fifoProgram($id, FifoService $fifo)

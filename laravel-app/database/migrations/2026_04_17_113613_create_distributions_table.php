@@ -24,22 +24,21 @@ return new class extends Migration
             $table->text('deskripsi_mustahik');
             $table->string('tipe_mustahik')->default('umum');
 
-            /**
-             * Alur Status Program (5 Tahap):
-             *
-             * 1. belum_cair          → Program dibuat tim penyaluran, menunggu pencairan keuangan
-             * 2. proses_pelaksanaan  → Dana dicairkan keuangan ke dompet penyaluran
-             * 3. tidak_terlaksana    → [AUTO CRON] Lewat tanggal & dana belum cair → dana dikembalikan ke kontrak
-             * 4. belum_dikonfirmasi  → [AUTO CRON] Lewat tanggal & dana sudah cair → menunggu bukti foto
-             * 5. telah_terkonfirmasi → Tim penyaluran upload foto bukti pelaksanaan ke IPFS
-             */
-            $table->string('status')->default('belum_cair');
+            $table->enum('status', [
+                'belum_cair', 
+                'proses_pelaksanaan', 
+                'tidak_terlaksana', 
+                'telah_terkonfirmasi'
+            ])->default('belum_cair');
 
-            // Bukti transaksi blockchain saat pencairan dana
+            // ── BUKTI KEBENARAN WEB3 ──
             $table->string('tx_hash')->nullable();
-
-            // Hash foto bukti pelaksanaan di IPFS (JSON array untuk multiple foto)
-            $table->text('ipfs_hash')->nullable();
+            
+            // Hash file JSON yang mengunci Judul, Nominal, dan NIK/Nama Mustahik (Dienkripsi)
+            $table->string('proposal_ipfs_hash')->nullable();
+            
+            // Hash foto-foto bukti penyerahan ke Mustahik
+            $table->text('bukti_ipfs_hash')->nullable();
 
             $table->timestamps();
         });

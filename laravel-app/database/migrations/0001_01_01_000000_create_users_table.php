@@ -6,28 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique()->nullable();
-            $table->string('wallet_address')->unique(); // Diset nullable agar tidak error jika ada user mendaftar tanpa wallet dulu
+            $table->string('name')->nullable(); // Boleh kosong, karena identitas utama adalah wallet
+            $table->string('wallet_address')->unique(); // Ini adalah "Username/Email" versi Web3
             $table->string('role')->default('muzakki');
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
             $table->rememberToken();
             $table->timestamps();
         });
 
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
-        });
+        // Tabel password_reset_tokens DIHAPUS karena tidak diperlukan
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
@@ -39,13 +29,9 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }
 };

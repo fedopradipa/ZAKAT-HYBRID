@@ -38,29 +38,26 @@ class PemerintahController extends Controller
         $ethPriceIdr = $ethPriceService->getEthToIdr();
 
         // ── CARDS ──────────────────────────────────────────────────────
-        $totalsRaw = Transaction::whereYear('created_at', $tahun)
-            ->select('jenis_dana', DB::raw('SUM(nominal) as total'))
-            ->groupBy('jenis_dana')
-            ->pluck('total', 'jenis_dana');
+        $baseQuery = Transaction::whereYear('created_at', $tahun);
 
-        $totalZakat         = 0;
-        $totalInfakTerikat  = 0;
-        $totalInfakBebas    = 0;
-        $totalHakAmil       = 0;
+        // Zakat = semua jenis_dana yang diawali 'Zakat'
+        $totalZakat = (clone $baseQuery)
+            ->where('jenis_dana', 'like', 'Zakat%')
+            ->sum('nominal_bersih');
 
-        foreach ($totalsRaw as $jenis => $total) {
-            $jenisLower = strtolower($jenis);
+        // Infak = exact match
+        $totalInfak = (clone $baseQuery)
+            ->where('jenis_dana', 'Infak')
+            ->sum('nominal_bersih');
 
-            if (str_contains($jenisLower, 'zakat')) {
-                $totalZakat += $total;
-            } elseif (str_contains($jenisLower, 'terikat')) {
-                $totalInfakTerikat += $total;
-            } elseif (str_contains($jenisLower, 'amil')) {
-                $totalHakAmil += $total;
-            } else {
-                $totalInfakBebas += $total;
-            }
-        }
+        // DSKL = exact match
+        $totalDskl = (clone $baseQuery)
+            ->where('jenis_dana', 'DSKL')
+            ->sum('nominal_bersih');
+
+        // Hak Amil = dari kolom hak_amil (bukan jenis_dana)
+        $totalHakAmil = (clone $baseQuery)
+            ->sum('hak_amil');
 
         // ── DATA CHART BULANAN ─────────────────────────────────────────
         $chartRaw = Transaction::whereYear('created_at', $tahun)
@@ -91,12 +88,12 @@ class PemerintahController extends Controller
         }
 
         // ── DONUT CHART ────────────────────────────────────────────────
-        $totalKeseluruhan   = $totalZakat + $totalInfakTerikat + $totalInfakBebas + $totalHakAmil;
+        $totalKeseluruhan = $totalZakat + $totalInfak + $totalDskl + $totalHakAmil;
         $donutData = [
-            round($totalZakat,        4),
-            round($totalInfakTerikat, 4),
-            round($totalInfakBebas,   4),
-            round($totalHakAmil,      4),
+            round($totalZakat,    4),
+            round($totalInfak,    4),
+            round($totalDskl,     4),
+            round($totalHakAmil,  4),
         ];
 
         // ── TABEL ──────────────────────────────────────────────────────
@@ -108,10 +105,10 @@ class PemerintahController extends Controller
 
         return view('dashboard.pemerintah.pengumpulanZIS.index', compact(
             'tahun',
-            'ethPriceIdr', // Kirim ke View
+            'ethPriceIdr',
             'totalZakat',
-            'totalInfakTerikat',
-            'totalInfakBebas',
+            'totalInfak',
+            'totalDskl',
             'totalHakAmil',
             'totalKeseluruhan',
             'bulanLabel',

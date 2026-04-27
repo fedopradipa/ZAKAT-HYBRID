@@ -57,25 +57,25 @@
         </p>
       </div>
 
-      {{-- Card: Infak Terikat --}}
+      {{-- Card: Infak / Sedekah --}}
       <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-blue-300 transition-colors">
-        <p class="text-xs text-slate-500 font-semibold mb-2">Infak Terikat</p>
+        <p class="text-xs text-slate-500 font-semibold mb-2">Infak / Sedekah</p>
         <p class="text-2xl font-black text-slate-800">
-          Rp {{ number_format($totalInfakTerikat * $ethPriceIdr, 0, ',', '.') }}
+          Rp {{ number_format(($totalInfak ?? 0) * $ethPriceIdr, 0, ',', '.') }}
         </p>
         <p class="text-xs font-bold text-blue-600 mt-1">
-          ≈ {{ number_format($totalInfakTerikat, 4, ',', '.') }} ETH
+          ≈ {{ number_format($totalInfak ?? 0, 4, ',', '.') }} ETH
         </p>
       </div>
 
-      {{-- Card: Infak Tidak Terikat --}}
+      {{-- Card: DSKL --}}
       <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-blue-300 transition-colors">
-        <p class="text-xs text-slate-500 font-semibold mb-2">Infak Tidak Terikat / DSKL</p>
+        <p class="text-xs text-slate-500 font-semibold mb-2">DSKL</p>
         <p class="text-2xl font-black text-slate-800">
-          Rp {{ number_format($totalInfakBebas * $ethPriceIdr, 0, ',', '.') }}
+          Rp {{ number_format(($totalDskl ?? 0) * $ethPriceIdr, 0, ',', '.') }}
         </p>
         <p class="text-xs font-bold text-blue-600 mt-1">
-          ≈ {{ number_format($totalInfakBebas, 4, ',', '.') }} ETH
+          ≈ {{ number_format($totalDskl ?? 0, 4, ',', '.') }} ETH
         </p>
       </div>
 
@@ -83,10 +83,10 @@
       <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-amber-300 transition-colors">
         <p class="text-xs text-slate-500 font-semibold mb-2">Hak Amil</p>
         <p class="text-2xl font-black text-slate-800">
-          Rp {{ number_format($totalHakAmil * $ethPriceIdr, 0, ',', '.') }}
+          Rp {{ number_format(($totalHakAmil ?? 0) * $ethPriceIdr, 0, ',', '.') }}
         </p>
         <p class="text-xs font-bold text-amber-600 mt-1">
-          ≈ {{ number_format($totalHakAmil, 4, ',', '.') }} ETH
+          ≈ {{ number_format($totalHakAmil ?? 0, 4, ',', '.') }} ETH
         </p>
       </div>
 
@@ -194,14 +194,11 @@
             @empty
               <tr>
                 <td colspan="6" class="px-6 py-16 text-center">
-                  <td colspan="6" class="px-6 py-16 text-center">
-  <div class="mb-3 flex justify-center opacity-40">
-    <svg class="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
-    </svg>
-  </div>
-  <p class="text-slate-500 font-bold text-sm">Belum ada data pengumpulan untuk tahun {{ $tahun }}.</p>
-</td>
+                  <div class="mb-3 flex justify-center opacity-40">
+                    <svg class="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                    </svg>
+                  </div>
                   <p class="text-slate-500 font-bold text-sm">Belum ada data pengumpulan untuk tahun {{ $tahun }}.</p>
                 </td>
               </tr>
@@ -349,7 +346,7 @@
       new Chart(document.getElementById('donutChart'), {
         type: 'doughnut',
         data: {
-          labels: ['Zakat', 'Infak Terikat', 'Infak / DSKL', 'Hak Amil'],
+          labels: ['Zakat', 'Infak / Sedekah', 'DSKL', 'Hak Amil'],
           datasets: [{
             data: donutData,
             backgroundColor: ['#059669', '#3b82f6', '#f59e0b', '#64748b'],
